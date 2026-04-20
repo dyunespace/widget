@@ -3,8 +3,8 @@
   template.innerHTML = `
         <style>
             :host { display: block; width: 100%; height: 100%; }
-            #ui5_container { width: 100%; height: 100%; }
-            /* UI5 테이블 높이 강제 지정 */
+            #ui5_container { width: 100%; height: 100%; min-height: 400px; }
+            /* UI5 테이블이 영역을 꽉 채우도록 설정 */
             .sapUiTable { height: 100% !important; }
         </style>
         <div id="ui5_container"></div>
@@ -24,7 +24,8 @@
     }
 
     initUI5 () {
-      if (window.sap && sap.ui) {
+      // UI5 라이브러리 체크 및 로드
+      if (window.sap && sap.ui && sap.ui.table) {
         this.render()
       } else {
         const script = document.createElement('script')
@@ -37,67 +38,62 @@
       }
     }
 
-    async render () {
-      const dataBinding = this.dataBinding
-      if (!dataBinding || dataBinding.state !== 'success') return
+    render () {
+      if (this._table) return; // 이미 테이블이 있으면 중복 생성 방지
 
-      // 1. SAC 데이터를 트리용 JSON 구조로 변환
-      const treeData = this.transformData(dataBinding)
+      sap.ui.getCore().attachInit(() => {
+        // 1. 2단계 매뉴얼 데이터 정의
+        const oData = {
+          root: [
+            {
+              name: "1. 부모 노드 (First Parent)",
+              amount: "100,000",
+              children: [
+                { name: "1-1. 자식 노드 A", amount: "60,000" },
+                { name: "1-2. 자식 노드 B", amount: "40,000" }
+              ]
+            },
+            {
+              name: "2. 부모 노드 (Second Parent)",
+              amount: "200,000",
+              children: [
+                { name: "2-1. 자식 노드 C", amount: "150,000" },
+                { name: "2-2. 자식 노드 D", amount: "50,000" }
+              ]
+            }
+          ]
+        };
 
-      if (!this._table) {
-        sap.ui.getCore().attachInit(() => {
-          this._table = new sap.ui.table.TreeTable({
-            columns: [
-              new sap.ui.table.Column({
-                label: "Hierarchy (Dimension)",
-                template: new sap.m.Text({ text: "{name}" })
-              }),
-              new sap.ui.table.Column({
-                label: "Measure Value",
-                template: new sap.m.Text({ text: "{value}" })
-              })
-            ],
-            selectionMode: "Single",
-            enableColumnReordering: false,
-            expandFirstLevel: true,
-            visibleRowCountMode: "Auto"
-          })
-          
-          const oModel = new sap.ui.model.json.JSONModel()
-          this._table.setModel(oModel)
-          this._table.placeAt(this._root)
-        })
-      }
+        // 2. 모델 생성 및 데이터 세팅
+        const oModel = new sap.ui.model.json.JSONModel(oData);
 
-      // 2. 모델에 데이터 업데이트
-      if (this._table && this._table.getModel()) {
-        this._table.getModel().setData({ root: treeData })
-        this._table.bindRows("/root")
-      }
-    }
+        // 3. TreeTable 생성
+        this._table = new sap.ui.table.TreeTable({
+          columns: [
+            new sap.ui.table.Column({
+              label: "계층 구조 (Hierarchy)",
+              template: new sap.m.Text({ text: "{name}" })
+            }),
+            new sap.ui.table.Column({
+              label: "금액 (Amount)",
+              template: new sap.m.Label({ text: "{amount}", design: "Bold" })
+            })
+          ],
+          selectionMode: "Single",
+          enableColumnReordering: false,
+          expandFirstLevel: true, // 첫 번째 레벨 자동 확장
+          visibleRowCountMode: "Auto"
+        });
 
-    // SAC 데이터를 계층 구조로 변환하는 핵심 함수
-    transformData (data) {
-      const rows = data.data
-      const result = []
+        this._table.setModel(oModel);
+        this._table.bindRows("/root");
 
-      rows.forEach(row => {
-        // 차원의 ID나 텍스트를 이름으로 사용
-        const name = row.dimensions_0.label || row.dimensions_0.id
-        const value = row.measures_0.raw
-        
-        // 여기에 계층 정보(Parent ID 등)가 있다면 추가 로직을 넣을 수 있습니다.
-        // 현재는 단순 리스트를 트리 노드로 보여주는 예시입니다.
-        result.push({
-          name: name,
-          value: value,
-          children: [] // 실제 하이라키 정보를 여기서 재귀적으로 구성 가능
-        })
-      })
-
-      return result
+        // 4. 화면에 배치
+        this._table.placeAt(this._root);
+      });
     }
   }
 
-  customElements.define('com-sap-sac-exercise-username-main', Main)
+  // index.json의 tag와 반드시 일치해야 함
+  customElements.define('com-sap-sac-exercise-dyunespace-v1-main', Main)
 })()
