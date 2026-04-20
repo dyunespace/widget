@@ -1,65 +1,103 @@
-(function() {
-    let template = document.createElement("template");
-    template.innerHTML = `
+(function () {
+  const template = document.createElement('template')
+  template.innerHTML = `
         <style>
             :host { display: block; width: 100%; height: 100%; }
-            #ui5_content { 
-                width: 100%; height: 100%; 
-                min-height: 100px; 
-                background: #fff3e0; 
-                border: 2px dashed #ff9800;
-                display: flex; align-items: center; justify-content: center;
-                flex-direction: column;
-                font-family: sans-serif;
-            }
+            #ui5_container { width: 100%; height: 100%; }
+            /* UI5 테이블 높이 강제 지정 */
+            .sapUiTable { height: 100% !important; }
         </style>
-        <div id="ui5_content">
-            <h2 id="status_text">⏳ UI5 라이브러리 체크 중...</h2>
-            <p id="debug_info"></p>
-        </div>
-    `;
+        <div id="ui5_container"></div>
+      `
 
-    class UI5Hierarchy extends HTMLElement {
-        constructor() {
-            super();
-            this._shadowRoot = this.attachShadow({ mode: "open" });
-            this._shadowRoot.appendChild(template.content.cloneNode(true));
-            console.log("위젯 생성자(Constructor) 호출됨");
-        }
-
-        // SAC에서 위젯을 처음 그리거나 업데이트할 때 호출
-        onCustomWidgetAfterUpdate(changedProperties) {
-            console.log("onCustomWidgetAfterUpdate 호출됨");
-            this.checkAndRender();
-        }
-
-        checkAndRender() {
-            const statusNode = this._shadowRoot.getElementById("status_text");
-            const debugNode = this._shadowRoot.getElementById("debug_info");
-
-            if (window.sap && sap.ui) {
-                statusNode.innerText = "✅ SAP UI5 로드 완료!";
-                statusNode.style.color = "#2e7d32";
-                this.renderTable();
-            } else {
-                statusNode.innerText = "⚠️ SAP UI5를 찾을 수 없음";
-                statusNode.style.color = "#d32f2f";
-                debugNode.innerText = "운영 서버의 라이브러리 로딩을 기다리는 중입니다.";
-            }
-        }
-
-        renderTable() {
-            const content = this._shadowRoot.getElementById("ui5_content");
-            content.style.background = "#e8f5e9";
-            content.innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <h2 style="color: #2e7d32;">🚀 하이라키 렌더링 준비 완료!</h2>
-                    <p>GitHub 코드가 실시간으로 반영되었습니다.</p>
-                    <button onclick="alert('연결 성공!')" style="padding: 10px 20px; cursor: pointer;">연결 테스트</button>
-                </div>
-            `;
-        }
+  class Main extends HTMLElement {
+    constructor () {
+      super()
+      this._shadowRoot = this.attachShadow({ mode: 'open' })
+      this._shadowRoot.appendChild(template.content.cloneNode(true))
+      this._root = this._shadowRoot.getElementById('ui5_container')
+      this._table = null
     }
 
-    customElements.define("com-sap-custom-ui5-hier-live", UI5Hierarchy);
-})();
+    onCustomWidgetAfterUpdate (changedProps) {
+      this.initUI5()
+    }
+
+    initUI5 () {
+      if (window.sap && sap.ui) {
+        this.render()
+      } else {
+        const script = document.createElement('script')
+        script.src = 'https://sapui5.hana.ondemand.com/resources/sap-ui-core.js'
+        script.id = 'sap-ui-bootstrap'
+        script.dataset.sapUiLibs = 'sap.m,sap.ui.table'
+        script.dataset.sapUiTheme = 'sap_horizon'
+        script.onload = () => this.render()
+        document.head.appendChild(script)
+      }
+    }
+
+    async render () {
+      const dataBinding = this.dataBinding
+      if (!dataBinding || dataBinding.state !== 'success') return
+
+      // 1. SAC 데이터를 트리용 JSON 구조로 변환
+      const treeData = this.transformData(dataBinding)
+
+      if (!this._table) {
+        sap.ui.getCore().attachInit(() => {
+          this._table = new sap.ui.table.TreeTable({
+            columns: [
+              new sap.ui.table.Column({
+                label: "Hierarchy (Dimension)",
+                template: new sap.m.Text({ text: "{name}" })
+              }),
+              new sap.ui.table.Column({
+                label: "Measure Value",
+                template: new sap.m.Text({ text: "{value}" })
+              })
+            ],
+            selectionMode: "Single",
+            enableColumnReordering: false,
+            expandFirstLevel: true,
+            visibleRowCountMode: "Auto"
+          })
+          
+          const oModel = new sap.ui.model.json.JSONModel()
+          this._table.setModel(oModel)
+          this._table.placeAt(this._root)
+        })
+      }
+
+      // 2. 모델에 데이터 업데이트
+      if (this._table && this._table.getModel()) {
+        this._table.getModel().setData({ root: treeData })
+        this._table.bindRows("/root")
+      }
+    }
+
+    // SAC 데이터를 계층 구조로 변환하는 핵심 함수
+    transformData (data) {
+      const rows = data.data
+      const result = []
+
+      rows.forEach(row => {
+        // 차원의 ID나 텍스트를 이름으로 사용
+        const name = row.dimensions_0.label || row.dimensions_0.id
+        const value = row.measures_0.raw
+        
+        // 여기에 계층 정보(Parent ID 등)가 있다면 추가 로직을 넣을 수 있습니다.
+        // 현재는 단순 리스트를 트리 노드로 보여주는 예시입니다.
+        result.push({
+          name: name,
+          value: value,
+          children: [] // 실제 하이라키 정보를 여기서 재귀적으로 구성 가능
+        })
+      })
+
+      return result
+    }
+  }
+
+  customElements.define('com-sap-sac-exercise-username-main', Main)
+})()
