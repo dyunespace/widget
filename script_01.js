@@ -38,5 +38,5 @@
     }
   }
 
-  customElements.define('com-sap-sac-exercise-username-main', Main)
+  customElements.define('com-sap-sac-hierarchy-jjung', Main)
 })()
