@@ -38,5 +38,5 @@
     }
   }
 
-  customElements.define('com-sap-sac-hierarchy-jjung', Main)
+  customElements.define('com-sap-sac-hierarchy-jjung-main', Main)
 })()
