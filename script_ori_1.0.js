@@ -56,16 +56,16 @@
         {
           id: "AM_US", text: "미국",
           children: [
-            { id: "AM_US_NYC", text: "뉴욕",         children: [] },
-            { id: "AM_US_LAX", text: "로스앤젤레스",  children: [] },
-            { id: "AM_US_CHI", text: "시카고",        children: [] }
+            { id: "AM_US_NYC", text: "뉴욕",          children: [] },
+            { id: "AM_US_LAX", text: "로스앤젤레스",   children: [] },
+            { id: "AM_US_CHI", text: "시카고",         children: [] }
           ]
         },
         {
           id: "AM_BR", text: "브라질",
           children: [
-            { id: "AM_BR_SAO", text: "상파울루",      children: [] },
-            { id: "AM_BR_RIO", text: "리우데자네이루", children: [] }
+            { id: "AM_BR_SAO", text: "상파울루",       children: [] },
+            { id: "AM_BR_RIO", text: "리우데자네이루",  children: [] }
           ]
         }
       ]
@@ -73,182 +73,241 @@
   ]
 
   // ─────────────────────────────────────────────
-  // Shadow DOM 템플릿
+  // 스타일
   // ─────────────────────────────────────────────
-  const template = document.createElement('template')
-  template.innerHTML = `
-    <style>
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
-      #root {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-        overflow: hidden;
-      }
-    </style>
-    <div id="root"></div>
+  const STYLES = `
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      font-family: "72", "72full", Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    #widget {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* ── 툴바 ── */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      height: 44px;
+      min-height: 44px;
+      background: #f5f6f7;
+      border-bottom: 1px solid #d9d9d9;
+      gap: 4px;
+    }
+    #toolbar-title {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+      color: #32363a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tb-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      color: #32363a;
+    }
+    .tb-btn:hover { background: #e5e5e5; }
+
+    /* ── 검색 ── */
+    #search-wrap {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e5e5;
+      min-height: 40px;
+      box-sizing: border-box;
+    }
+    #search {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 5px 8px;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+    }
+    #search:focus { border-color: #0070f2; }
+
+    /* ── 트리 스크롤 영역 ── */
+    #tree-wrap {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: auto;   /* 세로+가로 스크롤 */
+      padding: 4px 0;
+    }
+
+    /* ── 트리 노드 ── */
+    .tree-node {}
+    .tree-row {
+      display: flex;
+      align-items: center;
+      height: 36px;
+      padding-right: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tree-row:hover { background: #f0f4ff; }
+    .tree-row.selected { background: #e5f0ff; }
+
+    .tree-indent {
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .tree-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #555;
+      transition: transform 0.15s;
+    }
+    .tree-toggle.open { transform: rotate(90deg); }
+    .tree-toggle.leaf { visibility: hidden; }
+
+    .tree-label {
+      margin-left: 4px;
+      color: #32363a;
+      font-size: 14px;
+    }
+
+    .tree-children {
+      display: block;
+    }
+    .tree-children.collapsed {
+      display: none;
+    }
   `
 
   // ─────────────────────────────────────────────
-  // UI5 모듈 목록 (공통)
+  // 헬퍼
   // ─────────────────────────────────────────────
-  const UI5_MODULES = [
-    'sap/m/Tree',
-    'sap/m/StandardTreeItem',
-    'sap/ui/model/json/JSONModel',
-    'sap/m/Toolbar',
-    'sap/m/Title',
-    'sap/m/ToolbarSpacer',
-    'sap/m/Button',
-    'sap/m/SearchField',
-    'sap/m/ScrollContainer',
-    'sap/m/VBox'
-  ]
-
-  // ─────────────────────────────────────────────
-  // UI5 로드 헬퍼
-  // ─────────────────────────────────────────────
-  function loadUI5(cb) {
-    if (window.sap && window.sap.ui && window.sap.ui.require) {
-      sap.ui.require(UI5_MODULES, cb)
-      return
-    }
-    if (!document.getElementById('sap-ui-bootstrap')) {
-      const s = document.createElement('script')
-      s.id  = 'sap-ui-bootstrap'
-      s.src = 'https://ui5.sap.com/1.120.1/resources/sap-ui-core.js'
-      s.setAttribute('data-sap-ui-theme',        'sap_horizon')
-      s.setAttribute('data-sap-ui-libs',          'sap.m')
-      s.setAttribute('data-sap-ui-compatVersion', 'edge')
-      s.setAttribute('data-sap-ui-async',         'false')
-      s.onload = () =>
-        sap.ui.getCore().attachInit(() => sap.ui.require(UI5_MODULES, cb))
-      document.head.appendChild(s)
-    }
-  }
-
-  // ─────────────────────────────────────────────
-  // 검색 필터 유틸
-  // ─────────────────────────────────────────────
-  function filterNodes(nodes, query) {
-    if (!query) return nodes
+  function filterNodes(nodes, q) {
+    if (!q) return nodes
     return nodes.map(n => {
-      const childMatch = filterNodes(n.children || [], query)
-      const selfMatch  = n.text.toLowerCase().includes(query)
-      if (!selfMatch && childMatch.length === 0) return null
-      return Object.assign({}, n, { children: selfMatch ? n.children : childMatch })
+      const childMatch = filterNodes(n.children || [], q)
+      const self = n.text.toLowerCase().includes(q)
+      if (!self && !childMatch.length) return null
+      return Object.assign({}, n, { children: self ? n.children : childMatch })
     }).filter(Boolean)
   }
 
   // ─────────────────────────────────────────────
-  // UI5 트리 빌드
+  // 트리 DOM 빌더
   // ─────────────────────────────────────────────
-  function buildTree(container, instance) {
-    sap.ui.require(UI5_MODULES,
-      function (Tree, StandardTreeItem, JSONModel,
-                Toolbar, Title, ToolbarSpacer, Button, SearchField,
-                ScrollContainer, VBox) {
+  function buildNodeEl(node, depth, instance, expandAll) {
+    const hasChildren = node.children && node.children.length > 0
+    const indent = depth * 20   // px
 
-        const oModel = new JSONModel({ nodes: TREE_DATA })
+    // 노드 컨테이너
+    const nodeEl = document.createElement('div')
+    nodeEl.className = 'tree-node'
 
-        const oTree = new Tree({
-          mode: 'SingleSelectMaster',
-          includeItemInSelection: true,
-          width: '100%',
-          selectionChange: function (oEvent) {
-            const oItem = oEvent.getParameter('listItem')
-            if (!oItem) return
-            const oCtx  = oItem.getBindingContext()
-            const oData = oCtx ? oCtx.getObject() : null
-            if (oData) {
-              const path  = oCtx.getPath()
-              const level = (path.match(/\/children\//g) || []).length + 1
-              instance.dispatchEvent(new CustomEvent('onNodeSelect', {
-                detail: { id: oData.id, text: oData.text, level },
-                bubbles: true, composed: true
-              }))
-            }
-          }
-        })
-        oTree.bindItems({
-          path: '/nodes',
-          template: new StandardTreeItem({ title: '{text}' }),
-          parameters: { arrayNames: ['children'] }
-        })
-        oTree.setModel(oModel)
+    // 행
+    const row = document.createElement('div')
+    row.className = 'tree-row'
+    row.dataset.id    = node.id
+    row.dataset.text  = node.text
+    row.dataset.depth = depth
 
-        const oToolbar = new Toolbar({
-          content: [
-            new Title({ text: '지역 계층 트리 (3레벨)' }),
-            new ToolbarSpacer(),
-            new Button({
-              icon: 'sap-icon://expand-group',
-              tooltip: '모두 펼치기',
-              press: () => oTree.expandToLevel(2)
-            }),
-            new Button({
-              icon: 'sap-icon://collapse-group',
-              tooltip: '모두 접기',
-              press: () => oTree.collapseAll()
-            })
-          ]
-        })
+    // 인덴트
+    const indentEl = document.createElement('span')
+    indentEl.className = 'tree-indent'
+    indentEl.style.width = indent + 'px'
 
-        const oSearch = new SearchField({
-          placeholder: '검색...',
-          width: '100%',
-          liveChange: function (oEvent) {
-            const q = oEvent.getParameter('newValue').toLowerCase().trim()
-            oModel.setData({ nodes: filterNodes(TREE_DATA, q) })
-            if (q) oTree.expandToLevel(2)
-          }
-        })
+    // 토글 아이콘
+    const toggle = document.createElement('span')
+    toggle.className = 'tree-toggle' + (hasChildren ? '' : ' leaf')
+    toggle.textContent = '▶'
 
-        // ScrollContainer로 Tree 감싸기 (수직+수평 스크롤)
-        const oScroll = new ScrollContainer({
-          vertical: true,
-          horizontal: true,
-          width: '100%',
-          height: '100%',
-          content: [oTree]
-        })
+    // 라벨
+    const label = document.createElement('span')
+    label.className = 'tree-label'
+    label.textContent = node.text
 
-        const oVBox = new VBox({
-          width: '100%',
-          height: '100%',
-          renderType: 'Bare',
-          items: [oToolbar, oSearch, oScroll]
-        })
+    row.appendChild(indentEl)
+    row.appendChild(toggle)
+    row.appendChild(label)
+    nodeEl.appendChild(row)
 
-        // 렌더 후 flex 레이아웃 주입 — ScrollContainer가 남은 높이를 채우게 함
-        oVBox.addEventDelegate({
-          onAfterRendering: function () {
-            const vDom = oVBox.getDomRef()
-            if (!vDom) return
-            vDom.style.cssText += ';display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;'
+    // 자식 컨테이너
+    let childrenEl = null
+    if (hasChildren) {
+      childrenEl = document.createElement('div')
+      childrenEl.className = 'tree-children' + (expandAll ? '' : ' collapsed')
+      if (!expandAll) toggle.classList.remove('open')
+      else toggle.classList.add('open')
 
-            const sDom = oScroll.getDomRef()
-            if (!sDom) return
-            sDom.style.flex      = '1 1 0'
-            sDom.style.minHeight = '0'
+      node.children.forEach(child => {
+        childrenEl.appendChild(buildNodeEl(child, depth + 1, instance, expandAll))
+      })
+      nodeEl.appendChild(childrenEl)
 
-            const inner = sDom.querySelector('.sapMScrollContScroll')
-            if (inner) inner.style.minHeight = '100%'
-          }
-        })
+      // 토글 클릭
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation()
+        const collapsed = childrenEl.classList.toggle('collapsed')
+        toggle.classList.toggle('open', !collapsed)
+      })
+      row.addEventListener('click', function (e) {
+        e.stopPropagation()
+        const collapsed = childrenEl.classList.toggle('collapsed')
+        toggle.classList.toggle('open', !collapsed)
+        selectRow(row, instance, depth)
+      })
+    } else {
+      // 리프 노드
+      row.addEventListener('click', function (e) {
+        e.stopPropagation()
+        selectRow(row, instance, depth)
+      })
+    }
 
-        oVBox.placeAt(container)
+    return nodeEl
+  }
 
-        instance._ui5Model  = oModel
-        instance._ui5Tree   = oTree
-        instance._ui5VBox   = oVBox
-        instance._ui5Scroll = oScroll
-      }
-    )
+  function selectRow(row, instance, depth) {
+    // 이전 선택 해제
+    const prev = instance._root.querySelector('.tree-row.selected')
+    if (prev) prev.classList.remove('selected')
+    row.classList.add('selected')
+
+    instance.dispatchEvent(new CustomEvent('onNodeSelect', {
+      detail: { id: row.dataset.id, text: row.dataset.text, level: depth + 1 },
+      bubbles: true, composed: true
+    }))
+  }
+
+  function renderTree(container, data, instance, expandAll) {
+    container.innerHTML = ''
+    data.forEach(node => {
+      container.appendChild(buildNodeEl(node, 0, instance, expandAll))
+    })
   }
 
   // ─────────────────────────────────────────────
@@ -257,69 +316,108 @@
   class Main extends HTMLElement {
     constructor () {
       super()
-      this._shadowRoot = this.attachShadow({ mode: 'open' })
-      this._shadowRoot.appendChild(template.content.cloneNode(true))
-
-      this._container = null
-      this._ui5Model  = null
-      this._ui5Tree   = null
-      this._ui5VBox   = null
-      this._ui5Scroll = null
+      this._root = this.attachShadow({ mode: 'open' })
+      this._currentData  = TREE_DATA
+      this._expandAll    = false
     }
 
     connectedCallback () {
-      // VBox가 이미 존재하면 재빌드 하지 않음
-      if (this._ui5VBox) return
-
-      // UI5는 Shadow DOM 렌더 불가 → Light DOM에 컨테이너 생성
-      if (!this._container) {
-        this._container = document.createElement('div')
-        this._container.style.cssText = 'width:100%;height:100%;display:block;'
-        this.appendChild(this._container)
-      }
-
-      loadUI5(() => buildTree(this._container, this))
+      this._build()
     }
 
-    disconnectedCallback () {
-      this._destroyUI5()
+    _build () {
+      // 이미 빌드됐으면 스킵
+      if (this._root.getElementById('widget')) return
+
+      // 스타일
+      const style = document.createElement('style')
+      style.textContent = STYLES
+
+      // 위젯 루트
+      const widget = document.createElement('div')
+      widget.id = 'widget'
+
+      // ── 툴바 ──
+      const toolbar = document.createElement('div')
+      toolbar.id = 'toolbar'
+
+      const title = document.createElement('span')
+      title.id = 'toolbar-title'
+      title.textContent = '지역 계층 트리 (3레벨)'
+
+      const btnExpand = document.createElement('button')
+      btnExpand.className = 'tb-btn'
+      btnExpand.title = '모두 펼치기'
+      btnExpand.textContent = '⊞'
+      btnExpand.addEventListener('click', () => {
+        this._root.querySelectorAll('.tree-children').forEach(el => {
+          el.classList.remove('collapsed')
+        })
+        this._root.querySelectorAll('.tree-toggle:not(.leaf)').forEach(el => {
+          el.classList.add('open')
+        })
+      })
+
+      const btnCollapse = document.createElement('button')
+      btnCollapse.className = 'tb-btn'
+      btnCollapse.title = '모두 접기'
+      btnCollapse.textContent = '⊟'
+      btnCollapse.addEventListener('click', () => {
+        this._root.querySelectorAll('.tree-children').forEach(el => {
+          el.classList.add('collapsed')
+        })
+        this._root.querySelectorAll('.tree-toggle:not(.leaf)').forEach(el => {
+          el.classList.remove('open')
+        })
+      })
+
+      toolbar.appendChild(title)
+      toolbar.appendChild(btnExpand)
+      toolbar.appendChild(btnCollapse)
+
+      // ── 검색 ──
+      const searchWrap = document.createElement('div')
+      searchWrap.id = 'search-wrap'
+
+      const searchInput = document.createElement('input')
+      searchInput.id = 'search'
+      searchInput.type = 'text'
+      searchInput.placeholder = '검색...'
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim()
+        const filtered = filterNodes(TREE_DATA, q)
+        renderTree(treeWrap, filtered, this, !!q)
+      })
+      searchWrap.appendChild(searchInput)
+
+      // ── 트리 영역 ──
+      const treeWrap = document.createElement('div')
+      treeWrap.id = 'tree-wrap'
+
+      renderTree(treeWrap, TREE_DATA, this, false)
+
+      widget.appendChild(toolbar)
+      widget.appendChild(searchWrap)
+      widget.appendChild(treeWrap)
+
+      this._root.appendChild(style)
+      this._root.appendChild(widget)
     }
 
     onCustomWidgetResize (width, height) {
-      if (this._container) {
-        this._container.style.width  = width  + 'px'
-        this._container.style.height = height + 'px'
+      const widget = this._root.getElementById('widget')
+      if (widget) {
+        widget.style.width  = width  + 'px'
+        widget.style.height = height + 'px'
       }
     }
 
     onCustomWidgetAfterUpdate (changedProps) {
-      /**
-       * TODO: SAC dataBinding 연결 시 수정
-       *
-       * const binding = this.dataBinding
-       * if (!binding || binding.state !== 'success') return
-       * const converted = transformToTree(binding)
-       * if (this._ui5Model) this._ui5Model.setData({ nodes: converted })
-       */
+      // TODO: dataBinding 연결 시 여기서 renderTree 호출
     }
 
     onCustomWidgetDestroy () {
-      this._destroyUI5()
-    }
-
-    _destroyUI5 () {
-      if (this._ui5VBox) {
-        try { this._ui5VBox.destroy() } catch (e) {}
-        this._ui5VBox   = null
-        this._ui5Scroll = null
-        this._ui5Tree   = null
-        this._ui5Model  = null
-      }
-    }
-
-    async render () {
-      const dataBinding = this.dataBinding
-      if (!dataBinding || dataBinding.state !== 'success') return
+      this._root.innerHTML = ''
     }
   }
 
