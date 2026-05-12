@@ -97,40 +97,67 @@
 
       var oModel = new JSONModel({ nodes: TREE_DATA })
 
-      var oTree = new Tree({
-        // 1. 모드를 MultiSelect로 변경 (체크박스 생성)
-        mode: 'MultiSelect', 
+      const oTree = new Tree({
+        mode: 'MultiSelect',
         includeItemInSelection: true,
         width: '100%',
         selectionChange: function (oEvent) {
-          // 2. 다중 선택된 항목 처리
-          var aSelectedItems = oTree.getSelectedItems()
-          var aSelectedData = []
+          const oItem = oEvent.getParameter('listItem')
+          const bSelected = oEvent.getParameter('selected') // 방금 클릭해서 체크됐는지, 해제됐는지 여부
 
-          aSelectedItems.forEach(function (oItem) {
-            var oCtx = oItem.getBindingContext()
-            var oData = oCtx ? oCtx.getObject() : null
-            if (oData) {
-              var path = oCtx.getPath()
-              var level = (path.match(/\//g) || []).length // 레벨 계산 단순화
-              aSelectedData.push({ id: oData.id, text: oData.text, level: level })
-            }
-          })
+          if (oItem) {
+            const oCtx = oItem.getBindingContext()
+            const oNodeData = oCtx.getObject()
 
-          console.log('[Widget] 선택된 항목들:', aSelectedData)
-          
-          // 3. 커스텀 이벤트 발생 (SAC로 배열 전달)
+            // 1. 하위 노드들을 끝까지 찾아가며 상태를 똑같이 맞춰주는 마법의 함수
+            const toggleChildren = function(node, isChecked) {
+              if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                  child.selected = isChecked;
+                  toggleChildren(child, isChecked); // 손자, 증손자까지 파고듦
+                });
+              }
+            };
+
+            // 2. 내가 누른 노드와 그 밑의 모든 자식 데이터 변경
+            oNodeData.selected = bSelected;
+            toggleChildren(oNodeData, bSelected);
+
+            // 3. 데이터가 바뀌었으니 화면에 즉시 반영 (접혀있던 노드도 나중에 펼치면 체크되어 있음!)
+            oModel.refresh(true);
+          }
+
+          // 4. 화면이 아닌 '데이터 모델 전체'를 뒤져서 체크된 애들만 싹 다 모아오기
+          const aSelectedData = [];
+          const collectSelected = function(nodes, currentLevel) {
+            nodes.forEach(n => {
+              if (n.selected) {
+                aSelectedData.push({ id: n.id, text: n.text, level: currentLevel });
+              }
+              if (n.children) collectSelected(n.children, currentLevel + 1);
+            });
+          };
+
+          collectSelected(oModel.getProperty('/nodes') || [], 1);
+
+          console.log('[Widget] 현재 선택된 전체 노드:', aSelectedData);
+
+          // 5. SAC 밖으로 선택된 데이터 배열 쏴주기
           instance.dispatchEvent(new CustomEvent('onNodeSelect', {
             detail: { selectedNodes: aSelectedData },
             bubbles: true,
             composed: true
-          }))
+          }));
         }
       })
 
+      // 기존 oTree.bindItems 부분 교체
       oTree.bindItems({
         path: '/nodes',
-        template: new StandardTreeItem({ title: '{text}' }),
+        template: new StandardTreeItem({ 
+          title: '{text}',
+          selected: '{selected}'
+        }),
         parameters: { arrayNames: ['children'] }
       })
       oTree.setModel(oModel)
