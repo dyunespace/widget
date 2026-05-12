@@ -182,7 +182,7 @@
       // Shadow DOM 사용 안 함 → Light DOM에 직접 div 생성
       if (!this._container) {
         this._container = document.createElement('div')
-        this._container.style.cssText = 'width:100%;height:100%;'
+        this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;'
         this.appendChild(this._container)
       }
 
