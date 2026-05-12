@@ -98,24 +98,33 @@
       var oModel = new JSONModel({ nodes: TREE_DATA })
 
       var oTree = new Tree({
-        mode: 'MultiSelect',
+        // 1. 모드를 MultiSelect로 변경 (체크박스 생성)
+        mode: 'MultiSelect', 
         includeItemInSelection: true,
         width: '100%',
         selectionChange: function (oEvent) {
-          var oItem = oEvent.getParameter('listItem')
-          if (!oItem) return
-          var oCtx  = oItem.getBindingContext()
-          var oData = oCtx ? oCtx.getObject() : null
-          if (oData) {
-            var path  = oCtx.getPath()
-            var level = (path.match(/\/children\//g) || []).length + 1
-            console.log('[Widget] 선택:', oData.text, '레벨:', level)
-            instance.dispatchEvent(new CustomEvent('onNodeSelect', {
-              detail: { id: oData.id, text: oData.text, level: level },
-              bubbles: true,
-              composed: true
-            }))
-          }
+          // 2. 다중 선택된 항목 처리
+          var aSelectedItems = oTree.getSelectedItems()
+          var aSelectedData = []
+
+          aSelectedItems.forEach(function (oItem) {
+            var oCtx = oItem.getBindingContext()
+            var oData = oCtx ? oCtx.getObject() : null
+            if (oData) {
+              var path = oCtx.getPath()
+              var level = (path.match(/\//g) || []).length // 레벨 계산 단순화
+              aSelectedData.push({ id: oData.id, text: oData.text, level: level })
+            }
+          })
+
+          console.log('[Widget] 선택된 항목들:', aSelectedData)
+          
+          // 3. 커스텀 이벤트 발생 (SAC로 배열 전달)
+          instance.dispatchEvent(new CustomEvent('onNodeSelect', {
+            detail: { selectedNodes: aSelectedData },
+            bubbles: true,
+            composed: true
+          }))
         }
       })
 
