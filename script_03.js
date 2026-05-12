@@ -98,7 +98,7 @@
       var oModel = new JSONModel({ nodes: TREE_DATA })
 
       var oTree = new Tree({
-        mode: 'SingleSelectMaster',
+        mode: 'MultiSelect',
         includeItemInSelection: true,
         width: '100%',
         selectionChange: function (oEvent) {
