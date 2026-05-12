@@ -253,7 +253,6 @@
       // UI5는 Shadow DOM 미지원 → Light DOM 컨테이너에 렌더링
       if (!this._container) {
         this._container = document.createElement('div')
-        // 👇 여기에 overflow-y:auto; overflow-x:hidden; 을 추가했습니다!
         this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;'
         // Shadow DOM 바깥(Light DOM)에 붙임
         this.appendChild(this._container)
