@@ -93,6 +93,7 @@
   // UI5 로드 헬퍼
   // ─────────────────────────────────────────────
   function loadUI5(cb) {
+    // 케이스 A: SAC 런타임 - UI5 이미 로드됨
     if (window.sap && window.sap.ui && window.sap.ui.require) {
       sap.ui.require([
         'sap/m/Tree',
@@ -103,11 +104,11 @@
         'sap/m/ToolbarSpacer',
         'sap/m/Button',
         'sap/m/SearchField',
-        'sap/m/VBox',
-        'sap/m/ScrollContainer'   // ★ 추가
+        'sap/m/VBox'
       ], cb)
       return
     }
+    // 케이스 B: 로컬 테스트 - CDN에서 부트스트랩
     if (!document.getElementById('sap-ui-bootstrap')) {
       const s = document.createElement('script')
       s.id = 'sap-ui-bootstrap'
@@ -125,8 +126,7 @@
         'sap/m/ToolbarSpacer',
         'sap/m/Button',
         'sap/m/SearchField',
-        'sap/m/VBox',
-        'sap/m/ScrollContainer'   // ★ 추가
+        'sap/m/VBox'
       ], cb))
       document.head.appendChild(s)
     }
@@ -158,11 +158,9 @@
       'sap/m/ToolbarSpacer',
       'sap/m/Button',
       'sap/m/SearchField',
-      'sap/m/VBox',
-      'sap/m/ScrollContainer'   // ★ 추가
+      'sap/m/VBox'
     ], function (Tree, StandardTreeItem, JSONModel,
-                 Toolbar, Title, ToolbarSpacer, Button, SearchField, VBox,
-                 ScrollContainer) {
+                 Toolbar, Title, ToolbarSpacer, Button, SearchField, VBox) {
 
       const oModel = new JSONModel({ nodes: TREE_DATA })
 
@@ -221,52 +219,18 @@
         }
       })
 
-      // ★ 변경: Tree를 ScrollContainer로 감쌈
-      //   - vertical: true  → 항목이 많아지면 세로 스크롤
-      //   - horizontal: true → 긴 노드명이 있으면 가로 스크롤
-      //   - height '100%'는 VBox가 남은 공간을 채우도록 width/height 지정
-      const oScroll = new ScrollContainer({
-        vertical: true,
-        horizontal: true,
-        width: '100%',
-        height: '100%',
-        content: [oTree]
-      })
-
-      // ★ 변경: VBox에 renderType: 'Bare' + fitContainer 설정으로
-      //   Toolbar·SearchField 높이를 제외한 나머지를 ScrollContainer가 채우게 함
       const oVBox = new VBox({
         width: '100%',
         height: '100%',
-        renderType: 'Bare',
-        items: [oToolbar, oSearch, oScroll]
-      })
-
-      // ★ 변경: ScrollContainer가 VBox 남은 공간을 꽉 채우도록 CSS 주입
-      //   (UI5 VBox는 flex이므로 마지막 자식에 flex:1 주면 됨)
-      oVBox.addEventDelegate({
-        onAfterRendering: function () {
-          const vboxDom = oVBox.getDomRef()
-          if (!vboxDom) return
-          // VBox 자체를 flex column으로
-          vboxDom.style.display = 'flex'
-          vboxDom.style.flexDirection = 'column'
-          vboxDom.style.overflow = 'hidden'
-          // ScrollContainer 래퍼(세 번째 자식)에 flex:1
-          const scrollDom = oScroll.getDomRef()
-          if (scrollDom) {
-            scrollDom.style.flex = '1 1 0'
-            scrollDom.style.minHeight = '0'   // flex 자식이 overflow되지 않도록
-          }
-        }
+        items: [oToolbar, oSearch, oTree]
       })
 
       oVBox.placeAt(container)
 
-      instance._ui5Model  = oModel
-      instance._ui5Tree   = oTree
-      instance._ui5VBox   = oVBox
-      instance._ui5Scroll = oScroll   // ★ 참조 추가
+      // 인스턴스에 참조 저장 (onCustomWidgetAfterUpdate에서 갱신용)
+      instance._ui5Model = oModel
+      instance._ui5Tree  = oTree
+      instance._ui5VBox  = oVBox
     })
   }
 
@@ -280,31 +244,27 @@
       this._shadowRoot.appendChild(template.content.cloneNode(true))
       this._root = this._shadowRoot.getElementById('root')
 
-      this._ui5Model  = null
-      this._ui5Tree   = null
-      this._ui5VBox   = null
-      this._ui5Scroll = null
-      this._built     = false   // ★ 추가: 중복 빌드 방지 플래그
+      this._ui5Model = null
+      this._ui5Tree  = null
+      this._ui5VBox  = null
     }
 
     connectedCallback () {
+      // UI5는 Shadow DOM 미지원 → Light DOM 컨테이너에 렌더링
       if (!this._container) {
         this._container = document.createElement('div')
-        this._container.style.cssText = 'width:100%;height:100%;'
+        // 👇 여기에 overflow-y:auto; overflow-x:hidden; 을 추가했습니다!
+        this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;'
+        // Shadow DOM 바깥(Light DOM)에 붙임
         this.appendChild(this._container)
       }
-      // ★ 변경: 이미 빌드됐으면 다시 buildTree 하지 않음 (뻣음 방지)
-      if (this._built) return
-      this._built = true
       loadUI5(() => buildTree(this._container, this))
     }
 
     disconnectedCallback () {
       if (this._ui5VBox) {
         try { this._ui5VBox.destroy() } catch (e) {}
-        this._ui5VBox   = null
-        this._ui5Scroll = null
-        this._built     = false   // ★ 추가: DOM에서 제거되면 다음 연결 시 재빌드 허용
+        this._ui5VBox = null
       }
     }
 
@@ -321,7 +281,7 @@
        *
        * const binding = this.dataBinding
        * if (!binding || binding.state !== 'success') return
-       * const converted = transformToTree(binding)
+       * const converted = transformToTree(binding)   // 변환 함수 작성
        * if (this._ui5Model) this._ui5Model.setData({ nodes: converted })
        */
     }
@@ -335,6 +295,7 @@
     async render () {
       const dataBinding = this.dataBinding
       if (!dataBinding || dataBinding.state !== 'success') return
+      // 현재는 샘플 데이터 사용 중
     }
   }
 
