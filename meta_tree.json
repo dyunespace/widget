@@ -1,0 +1,48 @@
+{
+  "eula": "",
+  "vendor": "SAP",
+  "license": "",
+  "id": "com.sap.sac.hierarchy.jjung",
+  "version": "1.0.3",
+  "name": "Hierarchy Tree Widget",
+  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAVElEQVR4nGNkIBJwKTv9Rxf7dncfI4zNRKxBhMCoQYQBC9EKA/0wBXv2wZlDwGt8JRMwEh4xgGouYkQX0L2yn2gXXdZxHAlZBCOMYIBQWCGHz+AEALvcECABxT4qAAAAAElFTkSuQmCC",
+  "newInstancePrefix": "HierarchyCustomWidget",
+  "description": "Hierarchy SAPUI5 03",
+  "webcomponents": [
+    {
+      "kind": "main",
+      "tag": "com-sap-sac-hierarchy-jjung-main",
+      "url": "https://dyunespace.github.io/widget/script_03_D01.js",
+      "integrity": "",
+      "ignoreIntegrity": true
+    }
+  ],
+  "properties": {
+    "width": {
+      "type": "integer",
+      "default": 600
+    },
+    "height": {
+      "type": "integer",
+      "default": 420
+    }
+  },
+  "methods":{},
+  "events":{},
+  "dataBindings": {
+    "dataBinding": {
+      "feeds": [
+        {
+          "id": "dimensions",
+          "description": "Dimensions",
+          "type": "dimension"
+        },
+        {
+          "id": "measures",
+          "description": "Measures",
+          "type": "mainStructureMember"
+        }
+      ]
+    }
+  }
+}
