@@ -75,7 +75,8 @@
             const oCtx = oItem.getBindingContext();
 
             const oNodeData = oCtx.getObject();
-            alert(oNodeData.selected);
+            console.log("oNodeData.selected=");
+            console.log(oNodeData.selected);
 
             
             // 부모 클릭 시 자식 전체 상태 변경 로직
