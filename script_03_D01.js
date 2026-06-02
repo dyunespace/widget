@@ -132,7 +132,7 @@
 
       const oToolbar = new Toolbar({
         content: [
-          new Title({ text: 'SAC 연동 트리' }),
+          new Title({ text: 'SAC Tree by SAP UI5' }),
           new ToolbarSpacer(),
           new Button({
             icon: 'sap-icon://expand-group',
