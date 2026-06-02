@@ -89,8 +89,8 @@
               }
             };
 
-            oNodeData.selected = bSelected;
-            toggleChildren(oNodeData, bSelected);
+            //oNodeData.selected = bSelected;
+            toggleChildren(oNodeData, oNodeData.selected);
             
             // 데이터 모델 강제 새로고침하여 화면의 체크박스 상태 업데이트
             oModel.refresh(true);
@@ -132,7 +132,7 @@
 
       const oToolbar = new Toolbar({
         content: [
-          new Title({ text: 'SAC Tree by SAP UI5' }),
+          new Title({ text: 'SAC Tree by SAP UI5 v6.2.17:34' }),
           new ToolbarSpacer(),
           new Button({
             icon: 'sap-icon://expand-group',
