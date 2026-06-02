@@ -73,8 +73,11 @@
 
           if (oItem) {
             const oCtx = oItem.getBindingContext();
-            const oNodeData = oCtx.getObject();
 
+            const oNodeData = oCtx.getObject();
+            alert(oNodeData.selected);
+
+            
             // 부모 클릭 시 자식 전체 상태 변경 로직
             const toggleChildren = function(node, isChecked) {
               if (node.children && node.children.length > 0) {
