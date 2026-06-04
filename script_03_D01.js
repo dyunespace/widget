@@ -132,7 +132,7 @@
 
       const oToolbar = new Toolbar({
         content: [
-          new Title({ text: 'SAC Tree by SAP UI5 v6.2.17:34' }),
+          new Title({ text: 'SAC Tree by SAP UI5 v6.3.15:24' }),
           new ToolbarSpacer(),
           new Button({
             icon: 'sap-icon://expand-group',
