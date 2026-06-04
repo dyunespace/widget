@@ -93,7 +93,7 @@
             toggleChildren(oNodeData, oNodeData.selected);
             
             // 데이터 모델 강제 새로고침하여 화면의 체크박스 상태 업데이트
-            oModel.refresh(true);
+            //oModel.refresh(true);
           }
 
           // 화면 전체에서 선택된 노드 수집
