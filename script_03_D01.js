@@ -238,13 +238,18 @@
         try { this._ui5VBox.destroy(); } catch (e) {}
       }
     }
-    	getSelected () { //★추가한 부분
-	  const aSelectedData = [];
 
-	  const collectSelected = function (nodes, currentLevel) {
+	getSelected() {
+	  const aSelectedData = [];
+	  const collectSelected = function(nodes, currentLevel) {
 		nodes.forEach(n => {
 		  if (n.selected) {
-			aSelectedData.push({ id: n.id, text: n.text, level: currentLevel });
+			aSelectedData.push({
+			  id: n.id,
+			  description: n.text,
+			  parentId: n.parentId || '',
+			  properties: { level: currentLevel }  // ← 여기!
+			});
 		  }
 		  if (n.children) collectSelected(n.children, currentLevel + 1);
 		});
