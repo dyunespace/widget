@@ -27,8 +27,17 @@
       "default": 420
     }
   },
-  "methods":{},
-  "events":{},
+  "methods": {
+	"getSelected": {
+	  "description": "선택된 노드 목록 반환",
+	  "returnType": "ResultMemberInfo[]"
+	}
+  },
+  "events": {
+    "onNodeSelect": {
+      "description": "트리에서 노드를 선택/해제할 때 발생하는 이벤트"
+    }
+  },
   "dataBindings": {
     "dataBinding": {
       "feeds": [
