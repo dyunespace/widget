@@ -238,6 +238,21 @@
         try { this._ui5VBox.destroy(); } catch (e) {}
       }
     }
+    	getSelected () { //★추가한 부분
+	  const aSelectedData = [];
+
+	  const collectSelected = function (nodes, currentLevel) {
+		nodes.forEach(n => {
+		  if (n.selected) {
+			aSelectedData.push({ id: n.id, text: n.text, level: currentLevel });
+		  }
+		  if (n.children) collectSelected(n.children, currentLevel + 1);
+		});
+	  };
+
+	  collectSelected(this._ui5Model.getProperty('/nodes') || [], 1);
+	  return aSelectedData;
+	}
   }
 
   customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
