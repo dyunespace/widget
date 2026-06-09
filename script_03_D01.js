@@ -68,13 +68,20 @@
         includeItemInSelection: true,
         width: '100%',
         selectionChange: function (oEvent) {
+			console.log("001:");
+			console.log(oEvent);
           const oItem = oEvent.getParameter('listItem');
+			console.log("002:");
+			console.log(oItem);
           const bSelected = oEvent.getParameter('selected'); // 체크/해제 여부
 
           if (oItem) {
             const oCtx = oItem.getBindingContext();
-
+			  console.log("004:");
+			  console.log(oCtx);
             const oNodeData = oCtx.getObject();
+			  console.log("005:");
+			  console.log(oNodeData);
             console.log("oNodeData.selected=");
             console.log(oNodeData.selected);
 
