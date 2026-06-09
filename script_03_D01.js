@@ -3,8 +3,12 @@
   // ─── 1. SAC 평면 데이터를 계층형(Tree)으로 변환하는 마법의 함수 ───
   function buildHierarchyFromSAC(dataBinding) {
     if (!dataBinding || !dataBinding.data) return [];
+	  console.log("● dataBinding : ");
+	  console.log(dataBinding);
 
     const rows = dataBinding.data;
+	  console.log("● rows(dataBinding.data) : ");
+	  console.log(rows);
     const treeMap = [];
 
     rows.forEach(row => {
