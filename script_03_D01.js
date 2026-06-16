@@ -11,9 +11,13 @@
 	  console.log(rows);
     const treeMap = [];
 
+	// rows[0] 에서 딱 한번만 구하고
+	console.log("※ 차원키 추출 로직 밖으로 뺌"); 
+    const dimKeys = Object.keys(rows[0]).filter(k => k.startsWith('dimensions_')).sort();
+
     rows.forEach(row => {
       // dimensions_0, dimensions_1 등 차원 키만 추출해서 순서대로 정렬
-      const dimKeys = Object.keys(row).filter(k => k.startsWith('dimensions_')).sort();
+      // const dimKeys = Object.keys(row).filter(k => k.startsWith('dimensions_')).sort();
       let currentLevel = treeMap;
 
       dimKeys.forEach(key => {
