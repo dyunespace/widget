@@ -15,11 +15,11 @@
     const dimKeys = Object.keys(rows[0]).filter(k => k.startsWith('dimensions_')).sort();
 	console.log("※ 차원키 추출 로직 밖으로 뺌 / dimKeys : "+dimKeys); 
 
-    rows.forEach(row => {
+    rows.forEach(row => { //첫노드 부터 마지막노드까지 한세트
       // const dimKeys 로직 위로 뺌
       let currentLevel = treeMap;
 
-      dimKeys.forEach(key => {
+      dimKeys.forEach(key => { //첫노드 > 두번째노드 > 세번째노드 (중복이면 만들지말고 children으로 이동)
         const dimObj = row[key];
         const dimId = dimObj.id; // i번째 row의 j번째 dim의 id 
         const dimText = dimObj.label || dimObj.id; // i번째 row의 j번째 dim의 label (없으면 id) 
