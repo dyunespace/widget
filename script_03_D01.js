@@ -21,8 +21,8 @@
 
       dimKeys.forEach(key => {
         const dimObj = row[key];
-        const dimId = dimObj.id; // N번째 row의 N번째 dim의 id 
-        const dimText = dimObj.label || dimObj.id; // N번째 row의 N번째 dim의 label (없으면 id) 
+        const dimId = dimObj.id; // i번째 row의 j번째 dim의 id 
+        const dimText = dimObj.label || dimObj.id; // i번째 row의 j번째 dim의 label (없으면 id) 
 
         // 현재 레벨에 이미 해당 노드가 있는지 확인
         let existingNode = currentLevel.find(n => n.id === dimId);
