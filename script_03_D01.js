@@ -16,14 +16,13 @@
 	console.log("※ 차원키 추출 로직 밖으로 뺌 / dimKeys : "+dimKeys); 
 
     rows.forEach(row => {
-      // dimensions_0, dimensions_1 등 차원 키만 추출해서 순서대로 정렬
-      // const dimKeys = Object.keys(row).filter(k => k.startsWith('dimensions_')).sort();
+      // const dimKeys 로직 위로 뺌
       let currentLevel = treeMap;
 
       dimKeys.forEach(key => {
         const dimObj = row[key];
-        const dimId = dimObj.id;
-        const dimText = dimObj.label || dimObj.id;
+        const dimId = dimObj.id; // N번째 row의 N번째 dim의 id 
+        const dimText = dimObj.label || dimObj.id; // N번째 row의 N번째 dim의 label (없으면 id) 
 
         // 현재 레벨에 이미 해당 노드가 있는지 확인
         let existingNode = currentLevel.find(n => n.id === dimId);
