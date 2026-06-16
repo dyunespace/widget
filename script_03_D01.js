@@ -11,7 +11,7 @@
 	  console.log(rows);
     const treeMap = [];
 
-	// dimensions_0, dimensions_1 등 차원 키만 추출해서 순서대로 정렬
+	// dimensions_0, dimensions_1 등 차원 키만 추출 > dimensions_0,dimensions_1,dimensions_2
     const dimKeys = Object.keys(rows[0]).filter(k => k.startsWith('dimensions_')).sort();
 	console.log("※ 차원키 추출 로직 밖으로 뺌 / dimKeys : "+dimKeys); 
 
