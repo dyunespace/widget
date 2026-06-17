@@ -1,5 +1,26 @@
 (function () {
-	// 20260617_13:06 v1.0
+	/* 20260617_13:06 v1.0
+	buildHierarchyFromSAC
+	filterNodes
+	buildUI5Tree
+	  const oModel = new JSONModel({ nodes: [] });
+	  const oTree = new Tree({ ~
+	  oTree.bindItems({ ~
+	  oTree.setModel(oModel);
+	  const oToolbar = new Toolbar({ ~
+	  const oSearch = new SearchField({ ~
+	  const oVBox = new VBox({ ~
+	  oVBox.placeAt(container);
+	Main
+	└ constructor
+	└ connectedCallback
+	└ disconnectedCallback
+	└ onCustomWidgetResize
+	└ onCustomWidgetAfterUpdate
+	└ onCustomWidgetDestroy
+	└ getSelected
+	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
+	*/
   
 	// <7> SAC 평면 데이터를 계층형(Tree)으로 변환
 	function buildHierarchyFromSAC(dataBinding) {
@@ -48,7 +69,7 @@
 	}
 
 	// <5> SAPUI5 요소들 배치 및 이벤트 정의
-	function buildUI5Tree (container, instance) {
+	function buildUI5Tree (container, instance) { // instance = this
 		sap.ui.require([
 			'sap/m/Tree',
 			'sap/m/StandardTreeItem',
