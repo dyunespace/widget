@@ -1,5 +1,6 @@
 (function () {
-	/* 20260617_13:06 v1.0
+	console.log("20260618_17:04 v1.1");
+	/* 
 	buildHierarchyFromSAC
 	filterNodes
 	buildUI5Tree
@@ -19,6 +20,7 @@
 	└ onCustomWidgetAfterUpdate
 	└ onCustomWidgetDestroy
 	└ getSelected
+	└ setExpandLevel(level)
 	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
 	*/
   
@@ -248,42 +250,47 @@
 				const treeData = buildHierarchyFromSAC(binding);
 				this._ui5Model.setData({ nodes: treeData });
 
-				// 데이터가 로드되면 첫 번째 레벨을 자동으로 펼침
-				if (this._ui5Tree) {
-					this._ui5Tree.expandToLevel(1);
-				}
+				// 데이터가 로드되면 첫 번째 레벨을 자동으로 펼침 > 기본값(없으면)으로 조정하고 메소드로 제어
+				//if (this._ui5Tree) {
+				//	this._ui5Tree.expandToLevel(1);
+				//}
 			}
 		}
 
-    onCustomWidgetDestroy () {
-      if (this._ui5VBox) {
-        try { this._ui5VBox.destroy(); } catch (e) {}
-      }
-    }
-	
-	getSelected() {
-	  const aSelectedData = [];
-
-	  const collectSelected = function(nodes, currentLevel) {
-		nodes.forEach(n => {
-		  if (n.selected) {
-			aSelectedData.push({
-			  id: n.id,
-			  description: n.text,
-			  parentId: n.parentId || '',
-			  properties: { level: currentLevel }  // ← 여기!
-			});
-		  }
-		  if (n.children) collectSelected(n.children, currentLevel + 1);
-		});
-	  };
-
-	  collectSelected(this._ui5Model.getProperty('/nodes') || [], 1);
-	  return aSelectedData;
+	onCustomWidgetDestroy () {
+		if (this._ui5VBox) {
+			try { this._ui5VBox.destroy(); } catch (e) {}
+		}
 	}
-  } 
-  
 	
+	// Custom Method 영역
+	getSelected() {
+		const aSelectedData = [];
+		const collectSelected = function(nodes, currentLevel) {
+			nodes.forEach(n => {
+				if (n.selected) {
+					aSelectedData.push({
+						id: n.id,
+						description: n.text,
+						parentId: n.parentId || '',
+						properties: { level: currentLevel }  // ← 여기!
+					});
+				}
+				if (n.children) collectSelected(n.children, currentLevel + 1);
+			});
+		};
+		collectSelected(this._ui5Model.getProperty('/nodes') || [], 1);
+		return aSelectedData;
+		}
+	}
+	
+	setExpandLevel(level) {
+		if (this._ui5Tree) {
+			this._ui5Tree.expandToLevel(level);
+		}
+	}
+  
+  
 	// <1> 위젯 등록 : 태그발견시 Main Class실행 명령
 	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
 })();
