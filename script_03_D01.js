@@ -282,20 +282,12 @@
 		collectSelected(this._ui5Model.getProperty('/nodes') || [], 1);
 		return aSelectedData;
 		}
-		/*
-		setExpandLevel(level) {
-			if (this._ui5Tree) {
-				this._ui5Tree.expandToLevel(level);
-			}
-		}
-		*/
+
 		setExpandLevel(level) {
 			console.log('[Widget] setExpandLevel 호출:', level);
 			if (this._ui5Tree) {
-				console.log('[Widget] _ui5Tree 있음, expandToLevel 호출');
-				this._ui5Tree.expandToLevel(level);
-			} else {
-				console.log('[Widget] _ui5Tree 없음!');
+				this._ui5Tree.collapseAll();           // 먼저 전부 접고
+				this._ui5Tree.expandToLevel(level);    // 그 다음 원하는 레벨만 펼치기
 			}
 		}
 	}
