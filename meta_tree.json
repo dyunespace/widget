@@ -1,57 +1,67 @@
 {
-  "eula": "",
-  "vendor": "SAP",
-  "license": "",
-  "id": "com.sap.sac.hierarchy.jjung",
-  "version": "1.0.3",
-  "name": "Hierarchy Tree Widget",
-  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAVElEQVR4nGNkIBJwKTv9Rxf7dncfI4zNRKxBhMCoQYQBC9EKA/0wBXv2wZlDwGt8JRMwEh4xgGouYkQX0L2yn2gXXdZxHAlZBCOMYIBQWCGHz+AEALvcECABxT4qAAAAAElFTkSuQmCC",
-  "newInstancePrefix": "HierarchyCustomWidget",
-  "description": "Hierarchy SAPUI5 03",
-  "webcomponents": [
-    {
-      "kind": "main",
-      "tag": "com-sap-sac-hierarchy-jjung-main",
-      "url": "https://dyunespace.github.io/widget/script_03_D01.js",
-      "integrity": "",
-      "ignoreIntegrity": true
-    }
-  ],
-  "properties": {
-    "width": {
-      "type": "integer",
-      "default": 600
-    },
-    "height": {
-      "type": "integer",
-      "default": 420
-    }
-  },
-  "methods": {
-	"getSelected": {
-	  "description": "선택된 노드 목록 반환",
-	  "returnType": "ResultMemberInfo[]"
+	"eula": "",
+	"vendor": "SAP",
+	"license": "",
+	"id": "com.sap.sac.hierarchy.jjung",
+	"version": "1.0.3",
+	"name": "Hierarchy Tree Widget",
+	"icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAVElEQVR4nGNkIBJwKTv9Rxf7dncfI4zNRKxBhMCoQYQBC9EKA/0wBXv2wZlDwGt8JRMwEh4xgGouYkQX0L2yn2gXXdZxHAlZBCOMYIBQWCGHz+AEALvcECABxT4qAAAAAElFTkSuQmCC",
+	"newInstancePrefix": "HierarchyCustomWidget",
+	"description": "Hierarchy SAPUI5 03",
+	"webcomponents": [
+		{
+		"kind": "main",
+		"tag": "com-sap-sac-hierarchy-jjung-main",
+		"url": "https://dyunespace.github.io/widget/script_03_D01.js",
+		"integrity": "",
+		"ignoreIntegrity": true
+		}
+	],
+	"properties": {
+		"width": {
+			"type": "integer",
+			"default": 600
+		},
+		"height": {
+			"type": "integer",
+			"default": 420
+		}
+	},
+	"methods": {
+		"getSelected": {
+			"description": "선택된 노드 목록 반환",
+			"returnType": "ResultMemberInfo[]"
+		},
+		"setExpandLevel": {
+			"description": "펼칠 레벨 설정",
+			"parameters": [
+				{
+					"name": "level",
+					"type": "integer",
+					"description": "펼칠 레벨 수 (예: 1, 2, 99=전체)"
+				}
+			]
+		}
+	},
+	"events": {
+		"onNodeSelect": {
+			"description": "트리에서 노드를 선택/해제할 때 발생하는 이벤트"
+		}
+	},
+	"dataBindings": {
+		"dataBinding": {
+			"feeds": [
+				{
+					"id": "dimensions",
+					"description": "Dimensions",
+					"type": "dimension"
+				},
+				{
+					"id": "measures",
+					"description": "Measures",
+					"type": "mainStructureMember"
+				}
+			]
+		}
 	}
-  },
-  "events": {
-    "onNodeSelect": {
-      "description": "트리에서 노드를 선택/해제할 때 발생하는 이벤트"
-    }
-  },
-  "dataBindings": {
-    "dataBinding": {
-      "feeds": [
-        {
-          "id": "dimensions",
-          "description": "Dimensions",
-          "type": "dimension"
-        },
-        {
-          "id": "measures",
-          "description": "Measures",
-          "type": "mainStructureMember"
-        }
-      ]
-    }
-  }
 }
