@@ -257,39 +257,39 @@
 			}
 		}
 
-	onCustomWidgetDestroy () {
-		if (this._ui5VBox) {
-			try { this._ui5VBox.destroy(); } catch (e) {}
+		onCustomWidgetDestroy () {
+			if (this._ui5VBox) {
+				try { this._ui5VBox.destroy(); } catch (e) {}
+			}
 		}
-	}
-	
-	// Custom Method 영역
-	getSelected() {
-		const aSelectedData = [];
-		const collectSelected = function(nodes, currentLevel) {
-			nodes.forEach(n => {
-				if (n.selected) {
-					aSelectedData.push({
-						id: n.id,
-						description: n.text,
-						parentId: n.parentId || '',
-						properties: { level: currentLevel }  // ← 여기!
-					});
-				}
-				if (n.children) collectSelected(n.children, currentLevel + 1);
-			});
-		};
+		
+		// Custom Method 영역
+		getSelected() {
+			const aSelectedData = [];
+			const collectSelected = function(nodes, currentLevel) {
+				nodes.forEach(n => {
+					if (n.selected) {
+						aSelectedData.push({
+							id: n.id,
+							description: n.text,
+							parentId: n.parentId || '',
+							properties: { level: currentLevel }  // ← 여기!
+						});
+					}
+					if (n.children) collectSelected(n.children, currentLevel + 1);
+				});
+			};
 		collectSelected(this._ui5Model.getProperty('/nodes') || [], 1);
 		return aSelectedData;
 		}
-	}
-	
-	setExpandLevel(level) {
-		if (this._ui5Tree) {
-			this._ui5Tree.expandToLevel(level);
+			
+		setExpandLevel(level) {
+			if (this._ui5Tree) {
+				this._ui5Tree.expandToLevel(level);
+			}
 		}
 	}
-  
+	
   
 	// <1> 위젯 등록 : 태그발견시 Main Class실행 명령
 	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
