@@ -207,6 +207,7 @@
 			this._built     = false;
 			this._showAllNode = false;
 			this._showAllNodeText = "All";
+			this._defaultExpandLevel = 1;
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -250,6 +251,9 @@
 			if ('showAllNodeText' in changedProps) {
 				this._showAllNodeText = changedProps.showAllNodeText || 'All';
 			}
+			if ('defaultExpandLevel' in changedProps) {
+				this._defaultExpandLevel = changedProps.defaultExpandLevel || 1;
+			}
 
 			const binding = this.dataBinding;
 			if (!binding || binding.state !== 'success') return;
@@ -257,18 +261,15 @@
 			// UI5 모델이 준비되었다면, SAC 데이터를 트리형태로 바꿔서 밀어넣기
 			if (this._ui5Model) {
 				const treeData = buildHierarchyFromSAC(binding);
-				//this._ui5Model.setData({ nodes: treeData });
-
-				// 데이터가 로드되면 첫 번째 레벨을 자동으로 펼침 > 기본값(없으면)으로 조정하고 메소드로 제어
-				//if (this._ui5Tree) {
-				//	this._ui5Tree.expandToLevel(1);
-				//}
-				
 				const finalData = this._showAllNode
 					? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: treeData }]
 					: treeData;
 
 				this._ui5Model.setData({ nodes: finalData });
+				if (this._ui5Tree) {
+					this._ui5Tree.collapseAll();
+					this._ui5Tree.expandToLevel(this._defaultExpandLevel);
+				}
 			}
 		}
 
