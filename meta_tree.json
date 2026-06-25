@@ -3,7 +3,7 @@
 	"vendor": "SAP",
 	"license": "",
 	"id": "com.sap.sac.hierarchy.jjung",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"name": "Hierarchy Tree Widget",
 	"icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAVElEQVR4nGNkIBJwKTv9Rxf7dncfI4zNRKxBhMCoQYQBC9EKA/0wBXv2wZlDwGt8JRMwEh4xgGouYkQX0L2yn2gXXdZxHAlZBCOMYIBQWCGHz+AEALvcECABxT4qAAAAAElFTkSuQmCC",
 	"newInstancePrefix": "HierarchyCustomWidget",
@@ -39,6 +39,16 @@
 					"name": "level",
 					"type": "integer",
 					"description": "펼칠 레벨 수 (예: 1, 2, 99=전체)"
+				}
+			]
+		},
+		"setShowAllNode": {
+			"description": "ALL 노드 표시 여부 설정",
+			"parameters": [
+				{
+					"name": "value",
+					"type": "boolean",
+					"description": "true=ALL 노드 표시, false=숨김"
 				}
 			]
 		}
