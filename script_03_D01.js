@@ -244,6 +244,13 @@
 
 		// <6> SAC에서 데이터가 들어오거나 바뀔 때마다 실행
 		onCustomWidgetAfterUpdate (changedProps) {
+			if ('showAllNode' in changedProps) {
+				this._showAllNode = changedProps.showAllNode;
+			}
+			if ('showAllNodeText' in changedProps) {
+				this._showAllNodeText = changedProps.showAllNodeText || 'All';
+			}
+
 			const binding = this.dataBinding;
 			if (!binding || binding.state !== 'success') return;
 
@@ -261,7 +268,7 @@
 					? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: treeData }]
 					: treeData;
 
-				this._ui5Model.setData({ nodes: finalData });  // ← 수정
+				this._ui5Model.setData({ nodes: finalData });
 			}
 		}
 
