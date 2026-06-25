@@ -248,12 +248,18 @@
 			// UI5 모델이 준비되었다면, SAC 데이터를 트리형태로 바꿔서 밀어넣기
 			if (this._ui5Model) {
 				const treeData = buildHierarchyFromSAC(binding);
-				this._ui5Model.setData({ nodes: treeData });
+				//this._ui5Model.setData({ nodes: treeData });
 
 				// 데이터가 로드되면 첫 번째 레벨을 자동으로 펼침 > 기본값(없으면)으로 조정하고 메소드로 제어
 				//if (this._ui5Tree) {
 				//	this._ui5Tree.expandToLevel(1);
 				//}
+				
+				const finalData = this.showAllNode
+				? [{ id: 'ALL', text: 'ALL', selected: false, children: treeData }]
+				: treeData;
+
+				this._ui5Model.setData({ nodes: finalData });
 			}
 		}
 
@@ -289,6 +295,13 @@
 				this._ui5Tree.collapseAll();           // 먼저 전부 접고
 				this._ui5Tree.expandToLevel(level);    // 그 다음 원하는 레벨만 펼치기
 			}
+		}
+		
+		get showAllNode() {
+			return this._showAllNode !== false;
+		}
+		set showAllNode(value) {
+			this._showAllNode = value;
 		}
 	}
 	
