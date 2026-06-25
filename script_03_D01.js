@@ -208,6 +208,7 @@
 			this._showAllNode = false;
 			this._showAllNodeText = "All";
 			this._defaultExpandLevel = 1;
+			this._lastTreeData = null;
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -259,7 +260,7 @@
 			if (!binding || binding.state !== 'success') return;
 
 			// UI5 모델이 준비되었다면, SAC 데이터를 트리형태로 바꿔서 밀어넣기
-			if (this._ui5Model) {
+			/* if (this._ui5Model) {
 				const treeData = buildHierarchyFromSAC(binding);
 				const finalData = this._showAllNode
 					? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: treeData }]
@@ -270,6 +271,24 @@
 					this._ui5Tree.collapseAll();
 					this._ui5Tree.expandToLevel(this._defaultExpandLevel);
 				}
+			} */
+			
+			if (binding && binding.state === 'success') {
+				this._lastTreeData = buildHierarchyFromSAC(binding);
+			}
+
+			if (!this._lastTreeData) return;
+			if (!this._ui5Model) return;
+
+			const finalData = this._showAllNode
+			? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
+			: this._lastTreeData;
+
+			this._ui5Model.setData({ nodes: finalData });
+
+			if (this._ui5Tree) {
+				this._ui5Tree.collapseAll();
+				this._ui5Tree.expandToLevel(this._defaultExpandLevel);
 			}
 		}
 
@@ -311,15 +330,27 @@
 			this._showAllNode = value;
 			this._showAllNodeText = text || 'All';
 
-			const binding = this.dataBinding;
+/* 			const binding = this.dataBinding;
 			if (!binding || binding.state !== 'success') return;
 			if (!this._ui5Model) return;
 
 			const treeData = buildHierarchyFromSAC(binding);
 			const finalData = value
 				? [{ id: 'ALL', text: this._showAllNodeText, selected: false, children: treeData }]
-				: treeData;
+				: treeData; */
+			
+			const binding = this.dataBinding;
+			if (binding && binding.state === 'success') {
+				this._lastTreeData = buildHierarchyFromSAC(binding);
+			}
 
+			if (!this._lastTreeData) return;
+			if (!this._ui5Model) return;
+
+			const finalData = value
+				? [{ id: 'ALL', text: this._showAllNodeText, selected: false, children: this._lastTreeData }]
+				: this._lastTreeData;
+			
 			this._ui5Model.setData({ nodes: finalData });
 		}
 	}
