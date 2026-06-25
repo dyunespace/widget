@@ -15,6 +15,13 @@
 		"url": "https://dyunespace.github.io/widget/script_03_D01.js",
 		"integrity": "",
 		"ignoreIntegrity": true
+		},
+		{
+		"kind": "styling",
+		"tag": "com-sap-sac-hierarchy-jjung-styling",
+		"url": "https://dyunespace.github.io/widget/styling_01.js",
+		"integrity": "",
+		"ignoreIntegrity": true
 		}
 	],
 	"properties": {
@@ -25,6 +32,21 @@
 		"height": {
 			"type": "integer",
 			"default": 420
+		},
+		"showAllNode": {
+			"type": "boolean",
+			"default": false,
+			"description": "All 노드 표시 여부"
+		},
+		"showAllNodeText": {
+			"type": "string",
+			"default": "All",
+			"description": "All 노드에 표시할 텍스트"
+		},
+		"defaultExpandLevel": {
+			"type": "integer",
+			"default": 1,
+			"description": "데이터 로드 시 기본으로 펼칠 레벨"
 		}
 	},
 	"methods": {
@@ -43,12 +65,17 @@
 			]
 		},
 		"setShowAllNode": {
-			"description": "ALL 노드 표시 여부 설정",
+			"description": "All 노드 표시 여부 및 텍스트 설정",
 			"parameters": [
 				{
 					"name": "value",
 					"type": "boolean",
-					"description": "true=ALL 노드 표시, false=숨김"
+					"description": "true=상위 노드 표시, false=숨김"
+				},
+				{
+					"name": "text",
+					"type": "string",
+					"description": "상위 노드에 표시할 텍스트 (생략 시 'All')"
 				}
 			]
 		}
