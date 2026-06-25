@@ -205,6 +205,7 @@
 			this._ui5VBox   = null;
 			this._container = null;
 			this._built     = false;
+			this._showAllNode = false;
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -255,11 +256,11 @@
 				//	this._ui5Tree.expandToLevel(1);
 				//}
 				
-				const finalData = this.showAllNode
-				? [{ id: 'ALL', text: 'ALL', selected: false, children: treeData }]
-				: treeData;
+				const finalData = this._showAllNode
+					? [{ id: 'ALL', text: 'ALL', selected: false, children: treeData }]
+					: treeData;
 
-				this._ui5Model.setData({ nodes: finalData });
+				this._ui5Model.setData({ nodes: finalData });  // ← 수정
 			}
 		}
 
@@ -297,11 +298,19 @@
 			}
 		}
 		
-		get showAllNode() {
-			return this._showAllNode !== false;
-		}
-		set showAllNode(value) {
+		setShowAllNode(value) {
 			this._showAllNode = value;
+
+			const binding = this.dataBinding;
+			if (!binding || binding.state !== 'success') return;
+			if (!this._ui5Model) return;
+
+			const treeData = buildHierarchyFromSAC(binding);
+			const finalData = value
+				? [{ id: 'ALL', text: 'ALL', selected: false, children: treeData }]
+				: treeData;
+
+			this._ui5Model.setData({ nodes: finalData });
 		}
 	}
 	
