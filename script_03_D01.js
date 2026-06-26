@@ -209,13 +209,15 @@
 			this._showAllNodeText = "All";
 			this._defaultExpandLevel = 1;
 			this._lastTreeData = null;
+			this.style.display = 'block';
+			this.style.background = '#ffffff';
 		}
 		
 		// <4> 화면에 배치되면 실행
 		connectedCallback () {
 			if (!this._container) {
 				this._container = document.createElement('div');
-				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;';
+				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;background:#ffffff;';
 				this.appendChild(this._container);
 			}
 
