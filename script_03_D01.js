@@ -1,5 +1,5 @@
 (function () {
-	console.log("New Tree 20260626_14:20 v1.1 Debug");
+	console.log("New Tree 20260626_13:42 v1.1 Debug");
 	/* 
 	buildHierarchyFromSAC
 	filterNodes
@@ -209,14 +209,24 @@
 			this._showAllNodeText = "All";
 			this._defaultExpandLevel = 1;
 			this._lastTreeData = null;
+			this._treeFontFamily = "Arial, sans-serif";
+			this._treeFontSize = 13;
+			this._treeFontBold = false;
+			this._treeFontColor = "#32363a";
+			this._fontStyleEl = null;
+			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
 		}
 		
 		// <4> 화면에 배치되면 실행
 		connectedCallback () {
 			if (!this._container) {
 				this._container = document.createElement('div');
+				this._container.className = this._widgetUid;
 				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;';
 				this.appendChild(this._container);
+
+				this._fontStyleEl = document.createElement('style');
+				this._container.appendChild(this._fontStyleEl);
 				
 				// 🌟 [최종 해결책] 마우스/포인터 이벤트를 완벽하게 복제해서 SAC 껍데기로 전달
 				const forwardEvent = (e) => {
@@ -276,23 +286,22 @@
 			if ('defaultExpandLevel' in changedProps) {
 				this._defaultExpandLevel = changedProps.defaultExpandLevel || 1;
 			}
+			if ('treeFontFamily' in changedProps) {
+				this._treeFontFamily = changedProps.treeFontFamily;
+			}
+			if ('treeFontSize' in changedProps) {
+				this._treeFontSize = changedProps.treeFontSize;
+			}
+			if ('treeFontBold' in changedProps) {
+				this._treeFontBold = changedProps.treeFontBold;
+			}
+			if ('treeFontColor' in changedProps) {
+				this._treeFontColor = changedProps.treeFontColor;
+			}
+			this._applyFontStyle();
 
 			const binding = this.dataBinding;
-			if (!binding || binding.state !== 'success') return;
-
-			// UI5 모델이 준비되었다면, SAC 데이터를 트리형태로 바꿔서 밀어넣기
-			/* if (this._ui5Model) {
-				const treeData = buildHierarchyFromSAC(binding);
-				const finalData = this._showAllNode
-					? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: treeData }]
-					: treeData;
-
-				this._ui5Model.setData({ nodes: finalData });
-				if (this._ui5Tree) {
-					this._ui5Tree.collapseAll();
-					this._ui5Tree.expandToLevel(this._defaultExpandLevel);
-				}
-			} */
+			//if (!binding || binding.state !== 'success') return;
 			
 			if (binding && binding.state === 'success') {
 				this._lastTreeData = buildHierarchyFromSAC(binding);
@@ -351,15 +360,6 @@
 			this._showAllNode = value;
 			this._showAllNodeText = text || 'All';
 
-/* 			const binding = this.dataBinding;
-			if (!binding || binding.state !== 'success') return;
-			if (!this._ui5Model) return;
-
-			const treeData = buildHierarchyFromSAC(binding);
-			const finalData = value
-				? [{ id: 'ALL', text: this._showAllNodeText, selected: false, children: treeData }]
-				: treeData; */
-			
 			const binding = this.dataBinding;
 			if (binding && binding.state === 'success') {
 				this._lastTreeData = buildHierarchyFromSAC(binding);
@@ -373,6 +373,27 @@
 				: this._lastTreeData;
 			
 			this._ui5Model.setData({ nodes: finalData });
+		}
+		
+		_applyFontStyle () {
+			if (!this._fontStyleEl) return;
+
+			const fontFamily = this._treeFontFamily || 'Arial, sans-serif';
+			const fontSize   = (this._treeFontSize || 13) + 'px';
+			const fontWeight = this._treeFontBold ? 'bold' : 'normal';
+			const fontColor  = this._treeFontColor || '#32363a';
+
+			this._fontStyleEl.textContent =
+				'.' + this._widgetUid + ' .sapMTreeItemBaseDescription,' +
+				'.' + this._widgetUid + ' .sapMTreeItemBase,' +
+				'.' + this._widgetUid + ' .sapMSLITitle,' +
+				'.' + this._widgetUid + ' .sapMSF input,' +
+				'.' + this._widgetUid + ' .sapMSFI {' +
+				'  font-family:' + fontFamily + ' !important;' +
+				'  font-size:' + fontSize + ' !important;' +
+				'  font-weight:' + fontWeight + ' !important;' +
+				'  color:' + fontColor + ' !important;' +
+				'}';
 		}
 	}
 	
