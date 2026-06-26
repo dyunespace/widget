@@ -1,5 +1,5 @@
 (function () {
-	console.log("New Tree 20260618_17:42 v1.1 Debug");
+	console.log("New Tree 20260626_13:42 v1.1 Debug");
 	/* 
 	buildHierarchyFromSAC
 	filterNodes
@@ -209,16 +209,24 @@
 			this._showAllNodeText = "All";
 			this._defaultExpandLevel = 1;
 			this._lastTreeData = null;
-			this.style.display = 'block';
-			this.style.background = '#ffffff';
 		}
 		
 		// <4> 화면에 배치되면 실행
 		connectedCallback () {
 			if (!this._container) {
 				this._container = document.createElement('div');
-				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;background:#ffffff;';
+				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;';
 				this.appendChild(this._container);
+				
+				// 🌟 [추가된 부분] UI5가 클릭을 먹어버리기 전에 가로채서 SAC로 신호 쏘기
+				this._container.addEventListener('mousedown', (e) => {
+					// 나 자신(위젯 본체)에게 mousedown 이벤트를 강제로 발생시킴
+					this.dispatchEvent(new Event('mousedown', { bubbles: true, composed: true }));
+				}, true); // <-- 끝에 'true'가 핵심입니다! (Capture 단계에서 우선 실행)
+
+				this._container.addEventListener('click', (e) => {
+					this.dispatchEvent(new Event('click', { bubbles: true, composed: true }));
+				}, true);
 			}
 
 			if (this._built) return;
