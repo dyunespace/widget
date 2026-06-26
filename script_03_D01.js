@@ -1,5 +1,5 @@
 (function () {
-	console.log("New Tree 20260626_13:42 v1.1 Debug");
+	console.log("New Tree 20260626_14:20 v1.1 Debug");
 	/* 
 	buildHierarchyFromSAC
 	filterNodes
@@ -218,15 +218,26 @@
 				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;';
 				this.appendChild(this._container);
 				
-				// 🌟 [추가된 부분] UI5가 클릭을 먹어버리기 전에 가로채서 SAC로 신호 쏘기
-				this._container.addEventListener('mousedown', (e) => {
-					// 나 자신(위젯 본체)에게 mousedown 이벤트를 강제로 발생시킴
-					this.dispatchEvent(new Event('mousedown', { bubbles: true, composed: true }));
-				}, true); // <-- 끝에 'true'가 핵심입니다! (Capture 단계에서 우선 실행)
-
-				this._container.addEventListener('click', (e) => {
-					this.dispatchEvent(new Event('click', { bubbles: true, composed: true }));
-				}, true);
+				// 🌟 [최종 해결책] 마우스/포인터 이벤트를 완벽하게 복제해서 SAC 껍데기로 전달
+				const forwardEvent = (e) => {
+					// e.isTrusted가 true인 경우(사람이 직접 클릭한 진짜 이벤트일 때)만 복제
+					if (e.isTrusted) {
+						const clone = new MouseEvent(e.type, {
+							bubbles: true,
+							composed: true,
+							cancelable: true,
+							view: window,
+							clientX: e.clientX, // 진짜 마우스 X 좌표
+							clientY: e.clientY  // 진짜 마우스 Y 좌표
+						});
+						this.dispatchEvent(clone);
+					}
+				};
+				
+				// mousedown, click, pointerdown 3가지를 모두 잡아냅니다.
+				this._container.addEventListener('mousedown', forwardEvent, true);
+				this._container.addEventListener('pointerdown', forwardEvent, true);
+				this._container.addEventListener('click', forwardEvent, true);
 			}
 
 			if (this._built) return;
