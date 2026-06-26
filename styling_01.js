@@ -1,135 +1,176 @@
 (function () {
-	const template = document.createElement('template');
-	template.innerHTML = `
-	<style>
-		.row {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			padding: 8px;
-			font-family: Arial, sans-serif;
-			font-size: 13px;
-		}
-		.row input[type="text"] {
-			flex: 1;
-			min-width: 0;
-			padding: 4px 6px;
-			box-sizing: border-box;
-		}
-		.row label {
-			white-space: nowrap;
-		}
-    </style>
-	<div class="row">
-		<input type="checkbox" id="chk_showAll" />
-		<label for="chk_showAll">Show ALL node</label>
-	</div>
-	<div class="row">
-		<label for="txt_showAllText">노드 텍스트</label>
-		<input type="text" id="txt_showAllText" placeholder="All" />
-	</div>
-	<div class="row">
-		<label for="sel_defaultLevel">Default Level</label>
-		<select id="sel_defaultLevel">
-			<option value="0">0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="99">전체</option>
-		</select>
-	</div>
-		<div class="row">
-		<label for="sel_fontFamily">폰트</label>
-		<select id="sel_fontFamily">
-			<option value="Arial, sans-serif">Arial</option>
-			<option value="'Malgun Gothic', sans-serif">맑은 고딕</option>
-			<option value="'72', '72full', Arial, sans-serif">72 (SAP)</option>
-			<option value="Georgia, serif">Georgia</option>
-			<option value="'Courier New', monospace">Courier New</option>
-		</select>
-	</div>
-	<div class="row">
-		<label for="num_fontSize">글자 크기</label>
-		<input type="number" id="num_fontSize" min="8" max="40" step="1" />
-	</div>
-	<div class="row">
-		<input type="checkbox" id="chk_fontBold" />
-		<label for="chk_fontBold">굵게</label>
-	</div>
-	<div class="row">
-		<label for="color_fontColor">글자 색상</label>
-		<input type="color" id="color_fontColor" />
-	</div>
-  `;
+	// ─── UI5 스타일링 패널 빌더 ──────────────────────────────
+	function buildUI5Panel(container, instance) {
+		sap.ui.require([
+			"sap/ui/layout/form/SimpleForm",
+			"sap/m/Label",
+			"sap/m/Input",
+			"sap/m/CheckBox",
+			"sap/m/Select",
+			"sap/ui/core/Item",
+			"sap/m/StepInput",
+			"sap/ui/core/HTML"
+		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML) {
 
-  class Styling extends HTMLElement {
-    constructor () {
-		super();
-		this._shadowRoot = this.attachShadow({ mode: 'open' });
-		this._shadowRoot.appendChild(template.content.cloneNode(true));
+			// 1. Show ALL node (체크박스)
+			const chkShowAll = new CheckBox({
+				selected: instance._props.showAllNode || false,
+				select: function (oEvent) {
+					instance.updateProp('showAllNode', oEvent.getParameter('selected'));
+				}
+			});
 
-		this._chkShowAll = this._shadowRoot.getElementById('chk_showAll');
-		this._txtShowAllText = this._shadowRoot.getElementById('txt_showAllText');
-		this._selDefaultLevel = this._shadowRoot.getElementById('sel_defaultLevel');
-		
-		this._selFontFamily = this._shadowRoot.getElementById('sel_fontFamily');
-		this._numFontSize = this._shadowRoot.getElementById('num_fontSize');
-		this._chkFontBold = this._shadowRoot.getElementById('chk_fontBold');
-		this._colorFontColor = this._shadowRoot.getElementById('color_fontColor');
+			// 2. 노드 텍스트 (텍스트 입력)
+			const txtShowAllText = new Input({
+				value: instance._props.showAllNodeText || 'All',
+				change: function (oEvent) {
+					instance.updateProp('showAllNodeText', oEvent.getParameter('value'));
+				}
+			});
 
-		this._fireChange = () => {
-			this.dispatchEvent(new CustomEvent('propertiesChanged', {
-				detail: {
-					properties: {
-						showAllNode: this._chkShowAll.checked,
-						showAllNodeText: this._txtShowAllText.value || 'All',
-						defaultExpandLevel: parseInt(this._selDefaultLevel.value, 10),
-						treeFontFamily: this._selFontFamily.value,
-						treeFontSize: parseInt(this._numFontSize.value, 10) || 13,
-						treeFontBold: this._chkFontBold.checked,
-						treeFontColor: this._colorFontColor.value
+			// 3. Default Level (드롭다운)
+			const selDefaultLevel = new Select({
+				selectedKey: String(instance._props.defaultExpandLevel || 1),
+				items: [0, 1, 2, 3, 4, 5, 99].map(v => new Item({
+					key: String(v),
+					text: v === 99 ? '전체' : String(v)
+				})),
+				change: function (oEvent) {
+					instance.updateProp('defaultExpandLevel', parseInt(oEvent.getParameter('selectedItem').getKey(), 10));
+				}
+			});
+
+			// 4. 폰트 (드롭다운)
+			const selFontFamily = new Select({
+				selectedKey: instance._props.treeFontFamily || 'Arial, sans-serif',
+				items: [
+					new Item({ key: 'Arial, sans-serif', text: 'Arial' }),
+					new Item({ key: "'Malgun Gothic', sans-serif", text: '맑은 고딕' }),
+					new Item({ key: "'72', '72full', Arial, sans-serif", text: '72 (SAP)' }),
+					new Item({ key: 'Georgia, serif', text: 'Georgia' }),
+					new Item({ key: "'Courier New', monospace", text: 'Courier New' })
+				],
+				change: function (oEvent) {
+					instance.updateProp('treeFontFamily', oEvent.getParameter('selectedItem').getKey());
+				}
+			});
+
+			// 5. 글자 크기 (위아래 버튼이 있는 숫자 입력)
+			const numFontSize = new StepInput({
+				value: instance._props.treeFontSize || 13,
+				min: 8, max: 40,
+				change: function (oEvent) {
+					instance.updateProp('treeFontSize', oEvent.getParameter('value'));
+				}
+			});
+
+			// 6. 굵게 (체크박스)
+			const chkFontBold = new CheckBox({
+				selected: instance._props.treeFontBold || false,
+				select: function (oEvent) {
+					instance.updateProp('treeFontBold', oEvent.getParameter('selected'));
+				}
+			});
+
+			// 7. 글자 색상 (UI5 환경에 최적화된 Native Color Picker 삽입)
+			const colorHtml = "<input type='color' value='" + (instance._props.treeFontColor || '#000000') + "' style='width:100%; height: 2rem; border: 1px solid #ccc; padding: 2px; box-sizing: border-box; border-radius: 4px; cursor: pointer; background: white;'>";
+			const colorInput = new HTML({
+				content: colorHtml,
+				afterRendering: function () {
+					const domRef = this.getDomRef();
+					if (domRef) {
+						domRef.addEventListener('change', function (e) {
+							instance.updateProp('treeFontColor', e.target.value);
+						});
 					}
-				},
+				}
+			});
+
+			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
+			const oForm = new SimpleForm({
+				editable: true,
+				layout: "ResponsiveGridLayout",
+				labelSpanXL: 4, labelSpanL: 4, labelSpanM: 4, labelSpanS: 5,
+				emptySpanXL: 0, emptySpanL: 0, emptySpanM: 0, emptySpanS: 0,
+				columnsXL: 1, columnsL: 1, columnsM: 1,
+				content: [
+					new Label({ text: "Show ALL node" }), chkShowAll,
+					new Label({ text: "노드 텍스트" }), txtShowAllText,
+					new Label({ text: "Default Level" }), selDefaultLevel,
+					new Label({ text: "폰트" }), selFontFamily,
+					new Label({ text: "글자 크기" }), numFontSize,
+					new Label({ text: "굵게" }), chkFontBold,
+					new Label({ text: "글자 색상" }), colorInput
+				]
+			});
+
+			oForm.placeAt(container);
+
+			// 나중에 값이 밖에서 바뀌면 화면을 갱신하기 위해 컨트롤들을 저장
+			instance._ui5Controls = {
+				chkShowAll: chkShowAll,
+				txtShowAllText: txtShowAllText,
+				selDefaultLevel: selDefaultLevel,
+				selFontFamily: selFontFamily,
+				numFontSize: numFontSize,
+				chkFontBold: chkFontBold,
+				colorInput: colorInput
+			};
+		});
+	}
+
+	// ─── Web Component ────────────────────────────────────────
+	class Styling extends HTMLElement {
+		constructor() {
+			super();
+			this._container = null;
+			this._ui5Controls = null;
+			this._props = {}; // 현재 속성값들 저장
+		}
+
+		connectedCallback() {
+			// Shadow DOM 대신 Light DOM을 사용하여 UI5 팝업(드롭다운 등)이 짤리지 않게 함
+			if (!this._container) {
+				this._container = document.createElement('div');
+				this._container.style.padding = '10px 0'; // 위아래 여백 살짝
+				this.appendChild(this._container);
+
+				if (window.sap && window.sap.ui && window.sap.ui.require) {
+					buildUI5Panel(this._container, this);
+				}
+			}
+		}
+
+		// SAC 본체로 변경된 데이터 쏘기
+		updateProp(name, value) {
+			this._props[name] = value;
+			this.dispatchEvent(new CustomEvent('propertiesChanged', {
+				detail: { properties: { [name]: value } },
 				bubbles: true,
 				composed: true
 			}));
-		};
+		}
 
-		this._chkShowAll.addEventListener('change', this._fireChange);
-		this._txtShowAllText.addEventListener('change', this._fireChange);
-		this._selDefaultLevel.addEventListener('change', this._fireChange);
-		this._selFontFamily.addEventListener('change', this._fireChange);
-		this._numFontSize.addEventListener('change', this._fireChange);
-		this._chkFontBold.addEventListener('change', this._fireChange);
-		this._colorFontColor.addEventListener('change', this._fireChange);
-    }
+		// SAC 본체에서 초기값이나 변경된 값을 던져줄 때 실행됨
+		onCustomWidgetAfterUpdate(changedProps) {
+			Object.assign(this._props, changedProps); // 내부 변수 갱신
 
-    onCustomWidgetAfterUpdate (changedProps) {
-		if ('showAllNode' in changedProps) {
-			this._chkShowAll.checked = changedProps.showAllNode;
+			// UI5 화면에 반영 (화면이 다 그려진 후라면)
+			if (this._ui5Controls) {
+				if ('showAllNode' in changedProps) this._ui5Controls.chkShowAll.setSelected(changedProps.showAllNode);
+				if ('showAllNodeText' in changedProps) this._ui5Controls.txtShowAllText.setValue(changedProps.showAllNodeText);
+				if ('defaultExpandLevel' in changedProps) this._ui5Controls.selDefaultLevel.setSelectedKey(String(changedProps.defaultExpandLevel));
+				if ('treeFontFamily' in changedProps) this._ui5Controls.selFontFamily.setSelectedKey(changedProps.treeFontFamily);
+				if ('treeFontSize' in changedProps) this._ui5Controls.numFontSize.setValue(changedProps.treeFontSize);
+				if ('treeFontBold' in changedProps) this._ui5Controls.chkFontBold.setSelected(changedProps.treeFontBold);
+				
+				if ('treeFontColor' in changedProps) {
+					const domRef = this._ui5Controls.colorInput.getDomRef();
+					if (domRef) domRef.value = changedProps.treeFontColor;
+				}
+			}
 		}
-		if ('showAllNodeText' in changedProps) {
-			this._txtShowAllText.value = changedProps.showAllNodeText;
-		}
-		if ('defaultExpandLevel' in changedProps) {
-			this._selDefaultLevel.value = String(changedProps.defaultExpandLevel);
-		}
-		if ('treeFontFamily' in changedProps) {
-			this._selFontFamily.value = changedProps.treeFontFamily;
-		}
-		if ('treeFontSize' in changedProps) {
-			this._numFontSize.value = changedProps.treeFontSize;
-		}
-		if ('treeFontBold' in changedProps) {
-			this._chkFontBold.checked = changedProps.treeFontBold;
-		}
-		if ('treeFontColor' in changedProps) {
-			this._colorFontColor.value = changedProps.treeFontColor;
-		}
-    }
-}
+	}
 
 	customElements.define('com-sap-sac-hierarchy-jjung-styling', Styling);
 })();
