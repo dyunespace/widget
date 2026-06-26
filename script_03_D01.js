@@ -284,7 +284,7 @@
 				this._showAllNodeText = changedProps.showAllNodeText || 'All';
 			}
 			if ('defaultExpandLevel' in changedProps) {
-				this._defaultExpandLevel = changedProps.defaultExpandLevel || 1;
+				this._defaultExpandLevel = changedProps.defaultExpandLevel !== undefined ? changedProps.defaultExpandLevel : 1;
 			}
 			if ('treeFontFamily' in changedProps) {
 				this._treeFontFamily = changedProps.treeFontFamily;
