@@ -47,6 +47,26 @@
 			"type": "integer",
 			"default": 1,
 			"description": "데이터 로드 시 기본으로 펼칠 레벨"
+		},
+		"treeFontFamily": {
+			"type": "string",
+			"default": "Arial, sans-serif",
+			"description": "트리/검색창 폰트 패밀리"
+		},
+		"treeFontSize": {
+			"type": "integer",
+			"default": 13,
+			"description": "트리/검색창 글자 크기(px)"
+		},
+		"treeFontBold": {
+			"type": "boolean",
+			"default": false,
+			"description": "트리/검색창 글자 굵게 여부"
+		},
+		"treeFontColor": {
+			"type": "string",
+			"default": "#32363a",
+			"description": "트리/검색창 글자 색상"
 		}
 	},
 	"methods": {
