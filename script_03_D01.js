@@ -191,6 +191,16 @@
 			instance._ui5Model = oModel;
 			instance._ui5Tree  = oTree;
 			instance._ui5VBox  = oVBox;
+			
+			// 🌟 [추가] UI5 로딩이 늦게 끝나서 아까 대기 중이던 데이터가 있다면 지금 즉시 그려줍니다!
+			if (instance._lastTreeData) {
+				const finalData = instance._showAllNode
+					? [{ id: 'ALL', text: instance._showAllNodeText || 'All', selected: false, children: instance._lastTreeData }]
+					: instance._lastTreeData;
+				
+				oModel.setData({ nodes: finalData });
+				oTree.expandToLevel(instance._defaultExpandLevel);
+			}
 		});
 	}
 
@@ -308,17 +318,17 @@
 			}
 
 			if (!this._lastTreeData) return;
-			if (!this._ui5Model) return;
+			if (this._ui5Model) {
+				const finalData = this._showAllNode
+				? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
+				: this._lastTreeData;
 
-			const finalData = this._showAllNode
-			? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
-			: this._lastTreeData;
+				this._ui5Model.setData({ nodes: finalData });
 
-			this._ui5Model.setData({ nodes: finalData });
-
-			if (this._ui5Tree) {
-				this._ui5Tree.collapseAll();
-				this._ui5Tree.expandToLevel(this._defaultExpandLevel);
+				if (this._ui5Tree) {
+					this._ui5Tree.collapseAll();
+					this._ui5Tree.expandToLevel(this._defaultExpandLevel);
+				}
 			}
 		}
 
