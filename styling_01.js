@@ -103,7 +103,7 @@
 			
 			// 🌟 8. [추가] 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
 			const numRowPadding = new StepInput({
-				value: instance._props.treeRowPadding !== undefined ? instance._props.treeRowPadding : 12,
+				value: instance._props.treeRowPadding !== undefined ? instance._props.treeRowPadding : 0,
 				min: 0, max: 40, // 0~40px 사이로 제한
 				change: function (oEvent) {
 					instance.updateProp('treeRowPadding', oEvent.getParameter('value'));
