@@ -111,7 +111,6 @@
 				content: [
 					new Label({ text: "Show ALL node" }), chkShowAll,
 					lblShowAllText, txtShowAllText, // 🔄 [변경] 기존의 new Label(...)을 제거하고 변수명으로 대체
-					new Label({ text: "노드 텍스트" }), txtShowAllText,
 					new Label({ text: "Default Level" }), selDefaultLevel,
 					new Label({ text: "폰트" }), selFontFamily,
 					new Label({ text: "글자 크기" }), numFontSize,
@@ -188,8 +187,5 @@
 		}
 	}
 
-	// 🌟 [변경] 스타일링 패널도 똑같이 보호막 씌워주기!
-	if (!customElements.get('com-sap-sac-hierarchy-jjung-styling')) {
-		customElements.define('com-sap-sac-hierarchy-jjung-styling', Styling);
-	}
+	customElements.define('com-sap-sac-hierarchy-jjung-styling', Styling);
 })();
