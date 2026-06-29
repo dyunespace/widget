@@ -17,12 +17,27 @@
 				selected: instance._props.showAllNode || false,
 				select: function (oEvent) {
 					instance.updateProp('showAllNode', oEvent.getParameter('selected'));
+					
+					const bSelected = oEvent.getParameter('selected');
+					instance.updateProp('showAllNode', bSelected);
+					
+					// 🌟 [추가] 체크 여부에 따라 노드 텍스트 라벨과 입력창 숨김/표시 처리
+					lblShowAllText.setVisible(bSelected);
+					txtShowAllText.setVisible(bSelected);
 				}
+			});
+			
+			// 2. 노드 텍스트 라벨 변수 분리 및 초기 visible 설정
+			// ➕ [추가] 라벨을 변수로 생성하고 visible 속성 부여
+			const lblShowAllText = new Label({ 
+				text: "전체 노드 이름",
+				visible: instance._props.showAllNode || false 
 			});
 
 			// 2. 노드 텍스트 (텍스트 입력)
 			const txtShowAllText = new Input({
 				value: instance._props.showAllNodeText || 'All',
+				visible: instance._props.showAllNode || false, // 🌟 [추가] 초기 visible 설정
 				change: function (oEvent) {
 					instance.updateProp('showAllNodeText', oEvent.getParameter('value'));
 				}
@@ -95,6 +110,7 @@
 				columnsXL: 1, columnsL: 1, columnsM: 1,
 				content: [
 					new Label({ text: "Show ALL node" }), chkShowAll,
+					lblShowAllText, txtShowAllText, // 🔄 [변경] 기존의 new Label(...)을 제거하고 변수명으로 대체
 					new Label({ text: "노드 텍스트" }), txtShowAllText,
 					new Label({ text: "Default Level" }), selDefaultLevel,
 					new Label({ text: "폰트" }), selFontFamily,
