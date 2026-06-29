@@ -396,6 +396,7 @@
 			const fontSize   = (this._treeFontSize || 13) + 'px';
 			const fontWeight = this._treeFontBold ? 'bold' : 'normal';
 			const fontColor  = this._treeFontColor || '#32363a';
+			const rowPadding = (this._treeRowPadding !== undefined ? this._treeRowPadding : 12) + 'px';
 
 			this._fontStyleEl.textContent =
 				'.' + this._widgetUid + ' .sapMTreeItemBaseDescription,' +
