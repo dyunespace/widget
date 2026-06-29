@@ -100,6 +100,15 @@
 					}
 				}
 			});
+			
+			// 🌟 8. [추가] 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
+			const numRowPadding = new StepInput({
+				value: instance._props.treeRowPadding !== undefined ? instance._props.treeRowPadding : 12,
+				min: 0, max: 40, // 0~40px 사이로 제한
+				change: function (oEvent) {
+					instance.updateProp('treeRowPadding', oEvent.getParameter('value'));
+				}
+			});
 
 			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
 			const oForm = new SimpleForm({
@@ -115,7 +124,8 @@
 					new Label({ text: "폰트" }), selFontFamily,
 					new Label({ text: "글자 크기" }), numFontSize,
 					new Label({ text: "굵게" }), chkFontBold,
-					new Label({ text: "글자 색상" }), colorInput
+					new Label({ text: "글자 색상" }), colorInput,
+					new Label({ text: "행 간격(Padding)" }), numRowPadding // 🌟 [추가]
 				]
 			});
 
@@ -129,7 +139,8 @@
 				selFontFamily: selFontFamily,
 				numFontSize: numFontSize,
 				chkFontBold: chkFontBold,
-				colorInput: colorInput
+				colorInput: colorInput,
+				numRowPadding: numRowPadding // 🌟 [추가]
 			};
 		});
 	}
@@ -182,6 +193,10 @@
 				if ('treeFontColor' in changedProps) {
 					const domRef = this._ui5Controls.colorInput.getDomRef();
 					if (domRef) domRef.value = changedProps.treeFontColor;
+				}
+				// 🌟 [추가] 본체에서 값이 오면 패널 화면도 업데이트
+				if ('treeRowPadding' in changedProps) {
+					this._ui5Controls.numRowPadding.setValue(changedProps.treeRowPadding);
 				}
 			}
 		}
