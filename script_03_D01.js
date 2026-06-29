@@ -223,6 +223,7 @@
 			this._treeFontSize = 13;
 			this._treeFontBold = false;
 			this._treeFontColor = "#32363a";
+			this._treeRowPadding = 12;
 			this._fontStyleEl = null;
 			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
 		}
@@ -307,6 +308,9 @@
 			}
 			if ('treeFontColor' in changedProps) {
 				this._treeFontColor = changedProps.treeFontColor;
+			}
+			if ('treeRowPadding' in changedProps) {
+				this._treeRowPadding = changedProps.treeRowPadding;
 			}
 			this._applyFontStyle();
 
@@ -403,6 +407,12 @@
 				'  font-size:' + fontSize + ' !important;' +
 				'  font-weight:' + fontWeight + ' !important;' +
 				'  color:' + fontColor + ' !important;' +
+				'}'+
+				// 🌟 [추가] SAPUI5의 고정 높이를 풀고 패딩으로 간격 조절
+				'.' + this._widgetUid + ' .sapMTreeItemBase {' +
+				'  padding-top:' + rowPadding + ' !important;' +
+				'  padding-bottom:' + rowPadding + ' !important;' +
+				'  height: auto !important;' + 
 				'}';
 		}
 	}
