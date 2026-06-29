@@ -188,5 +188,8 @@
 		}
 	}
 
-	customElements.define('com-sap-sac-hierarchy-jjung-styling', Styling);
+	// 🌟 [변경] 스타일링 패널도 똑같이 보호막 씌워주기!
+	if (!customElements.get('com-sap-sac-hierarchy-jjung-styling')) {
+		customElements.define('com-sap-sac-hierarchy-jjung-styling', Styling);
+	}
 })();
