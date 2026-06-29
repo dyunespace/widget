@@ -223,7 +223,7 @@
 			this._treeFontSize = 13;
 			this._treeFontBold = false;
 			this._treeFontColor = "#32363a";
-			this._treeRowPadding = 12;
+			this._treeRowPadding = 0; //0은 내부적으로 기본값
 			this._fontStyleEl = null;
 			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
 		}
@@ -396,9 +396,12 @@
 			const fontSize   = (this._treeFontSize || 13) + 'px';
 			const fontWeight = this._treeFontBold ? 'bold' : 'normal';
 			const fontColor  = this._treeFontColor || '#32363a';
-			const rowPadding = (this._treeRowPadding !== undefined ? this._treeRowPadding : 12) + 'px';
+			
+			// 패딩 값 가져오기 (0이면 순정 모드)
+			const rowPaddingVal = this._treeRowPadding !== undefined ? this._treeRowPadding : 0;
 
-			this._fontStyleEl.textContent =
+			// 1. 기본 폰트 CSS 뭉치
+			let cssText =
 				'.' + this._widgetUid + ' .sapMTreeItemBaseDescription,' +
 				'.' + this._widgetUid + ' .sapMTreeItemBase,' +
 				'.' + this._widgetUid + ' .sapMSLITitle,' +
@@ -408,13 +411,20 @@
 				'  font-size:' + fontSize + ' !important;' +
 				'  font-weight:' + fontWeight + ' !important;' +
 				'  color:' + fontColor + ' !important;' +
-				'}'+
-				// 🌟 [추가] SAPUI5의 고정 높이를 풀고 패딩으로 간격 조절
-				'.' + this._widgetUid + ' .sapMTreeItemBase {' +
-				'  padding-top:' + rowPadding + ' !important;' +
-				'  padding-bottom:' + rowPadding + ' !important;' +
-				'  height: auto !important;' + 
 				'}';
+
+			// 🌟 2. 패딩 값이 0보다 클 때만 높이 조절 CSS를 슬쩍 추가!
+			if (rowPaddingVal > 0) {
+				cssText +=
+					'.' + this._widgetUid + ' .sapMTreeItemBase {' +
+					'  padding-top:' + rowPaddingVal + 'px !important;' +
+					'  padding-bottom:' + rowPaddingVal + 'px !important;' +
+					'  height: auto !important;' + 
+					'}';
+			}
+
+			// 브라우저에 빵 쏘기
+			this._fontStyleEl.textContent = cssText;
 		}
 	}
 	
