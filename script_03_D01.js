@@ -409,5 +409,8 @@
 	
   
 	// <1> 위젯 등록 : 태그발견시 Main Class실행 명령
-	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
+	// 🌟 [변경] 이미 등록된 이름인지 확인하고, 없을 때만 등록!
+	if (!customElements.get('com-sap-sac-hierarchy-jjung-main')) {
+		customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
+	}
 })();
