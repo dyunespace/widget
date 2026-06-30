@@ -1,4 +1,5 @@
 (function () {
+	console.log("Custom Tree : Style 20260630_12:50");
 	// ─── UI5 스타일링 패널 빌더 ──────────────────────────────
 	function buildUI5Panel(container, instance) {
 		sap.ui.require([
