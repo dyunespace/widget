@@ -154,22 +154,19 @@
 				]
 			});
 			
-			// 🌟 [수정] 라벨을 왼쪽으로 딱 붙이고 폼 여백을 완전히 날려버리는 강력한 CSS
+			// 🌟 [수정] 뼈대를 부수지 않고 얌전하게 왼쪽 정렬만 시키는 안전한 CSS
 			if (!document.getElementById("sac-custom-form-style")) {
 				const styleEl = document.createElement("style");
 				styleEl.id = "sac-custom-form-style";
 				styleEl.textContent = `
-					/* 1. 라벨(글자)을 무조건 왼쪽으로 정렬 */
-					.sacLeftAlignForm .sapUiFormElementLbl,
-					.sacLeftAlignForm .sapMLabel {
+					/* 1. 그리드를 유지한 채 라벨 글자만 왼쪽으로 정렬 */
+					.sacLeftAlignForm .sapMLabel,
+					.sacLeftAlignForm .sapUiFormElementLbl {
 						text-align: left !important;
-						justify-content: flex-start !important;
-						width: 100% !important; /* 공간을 꽉 채워야 왼쪽 정렬이 먹힘 */
 					}
 					
-					/* 2. 폼 양옆의 쓸데없는 빈 공간(Padding) 완전 제거 */
-					.sacLeftAlignForm.sapUiFormResGrid,
-					.sacLeftAlignForm .sapUiFormResGrid>div {
+					/* 2. 폼 자체의 불필요한 왼쪽 여백만 살짝 제거 */
+					.sacLeftAlignForm.sapUiFormResGrid {
 						padding-left: 0 !important;
 						padding-right: 0 !important;
 					}
