@@ -125,26 +125,26 @@
 				]
 			});
 
-			// 🌟 8-2. 아이콘 만들기 (클릭 시 열림)
+			// 🌟 8-2. 아이콘 만들기 (press 속성을 과감히 지웁니다!)
 			const infoIcon = new Icon({
 				src: "sap-icon://message-information",
 				size: "1rem",
-				color: "#5b738b",
-				press: function (oEvent) {
-					// 아이콘을 누르면 팝오버가 짠! 하고 열림
-					oInfoPopover.openBy(oEvent.getSource());
-				}
+				color: "#5b738b"
 			}).addStyleClass("sapUiTinyMarginBegin sapPointer");
 
-			// 🌟 8-3. 마우스 이벤트 연결 (마우스를 치우면 서서히 닫힘)
+			// 🌟 8-3. 마우스 이벤트 연결 (누를 때 열리고, 치우면 닫힘)
 			infoIcon.addEventDelegate({
+				onmousedown: function () {
+					// 👆 마우스를 꾹 '누르는' 그 찰나의 순간에 즉시 팝오버를 엽니다!
+					oInfoPopover.openBy(infoIcon); 
+				},
 				onmouseout: function () {
-					// 마우스가 아이콘 밖으로 나가면, UI5 기본 애니메이션과 함께 서서히 사라짐!
+					// 👆 마우스를 밖으로 빼면 서서히 사라집니다.
 					oInfoPopover.close(); 
 				}
 			});
 
-			// 🌟 8-4. 숫자 입력창과 아이콘 묶어주기
+			// 🌟 8-4. 숫자 입력창과 아이콘 묶어주기 (동일)
 			const hboxRowPadding = new HBox({
 				alignItems: "Center",
 				items: [
