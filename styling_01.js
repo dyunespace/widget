@@ -12,7 +12,7 @@
 			"sap/ui/core/HTML",
 			"sap/m/HBox",         // 🌟 [추가] 가로로 묶어주는 박스
 			"sap/ui/core/Icon"    // 🌟 [추가] 정보 아이콘
-		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML) {
+		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon) {
 
 			// 1. Show ALL node (체크박스)
 			const chkShowAll = new CheckBox({
