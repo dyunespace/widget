@@ -9,7 +9,9 @@
 			"sap/m/Select",
 			"sap/ui/core/Item",
 			"sap/m/StepInput",
-			"sap/ui/core/HTML"
+			"sap/ui/core/HTML",
+			"sap/m/HBox",         // 🌟 [추가] 가로로 묶어주는 박스
+			"sap/ui/core/Icon"    // 🌟 [추가] 정보 아이콘
 		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML) {
 
 			// 1. Show ALL node (체크박스)
@@ -101,13 +103,25 @@
 				}
 			});
 			
-			// 🌟 8. [추가] 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
+			// 🌟 8. 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
 			const numRowPadding = new StepInput({
 				value: instance._props.treeRowPadding !== undefined ? instance._props.treeRowPadding : 0,
-				min: 0, max: 40, // 0~40px 사이로 제한
+				min: 0, max: 40,
 				change: function (oEvent) {
 					instance.updateProp('treeRowPadding', oEvent.getParameter('value'));
 				}
+			});
+
+			// 🌟 [추가] 숫자 입력창과 (i) 아이콘을 가로(HBox)로 예쁘게 묶어주기
+			const hboxRowPadding = new HBox({
+				alignItems: "Center", // 세로 중앙 정렬
+				items: [
+					numRowPadding,
+					new Icon({
+						src: "sap-icon://information",
+						tooltip: "0을 입력하면 기본 행 간격이 적용됩니다."
+					}).addStyleClass("sapUiTinyMarginBegin") // 아이콘 왼쪽에 살짝 여백(Margin) 주기
+				]
 			});
 
 			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
@@ -125,7 +139,7 @@
 					new Label({ text: "글자 크기" }), numFontSize,
 					new Label({ text: "굵게" }), chkFontBold,
 					new Label({ text: "글자 색상" }), colorInput,
-					new Label({ text: "행 간격(Padding)" }), numRowPadding // 🌟 [추가]
+					new Label({ text: "행 간격(Padding)" }), hboxRowPadding // 🌟 [변경] numRowPadding 대신 아이콘이 포함된 hboxRowPadding을 넣습니다!
 				]
 			});
 
