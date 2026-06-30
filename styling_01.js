@@ -14,7 +14,7 @@
 			"sap/ui/core/Icon",    // 🌟 [추가] 정보 아이콘
 			"sap/m/Popover",      // 🌟 [추가] 꼭지 달린 말풍선
 			"sap/m/Text"          // 🌟 [추가] 말풍선 안의 텍스트
-		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon) {
+		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon, Popover, Text) {
 
 			// 1. Show ALL node (체크박스)
 			const chkShowAll = new CheckBox({
