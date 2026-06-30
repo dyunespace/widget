@@ -152,6 +152,25 @@
 					infoIcon
 				]
 			});
+			
+			// 🌟 [추가] 라벨을 왼쪽으로 정렬하고 폼 여백을 없애는 마법의 CSS 주입
+			if (!document.getElementById("sac-custom-form-style")) {
+				const styleEl = document.createElement("style");
+				styleEl.id = "sac-custom-form-style";
+				styleEl.textContent = `
+					/* 라벨 글자를 왼쪽으로 딱 붙임 */
+					.sacLeftAlignForm .sapUiFormElementLbl {
+						text-align: left !important;
+						justify-content: flex-start !important;
+					}
+					/* 폼 컨테이너 자체의 기본 안쪽 여백을 없애서 상단 메뉴와 열을 맞춤 */
+					.sacLeftAlignForm.sapUiFormResGrid {
+						padding-left: 0 !important;
+						padding-right: 0 !important;
+					}
+				`;
+				document.head.appendChild(styleEl);
+			}
 
 			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
 			const oForm = new SimpleForm({
@@ -162,15 +181,15 @@
 				columnsXL: 1, columnsL: 1, columnsM: 1,
 				content: [
 					new Label({ text: "Show ALL node" }), chkShowAll,
-					lblShowAllText, txtShowAllText, // 🔄 [변경] 기존의 new Label(...)을 제거하고 변수명으로 대체
+					lblShowAllText, txtShowAllText,
 					new Label({ text: "Default Level" }), selDefaultLevel,
 					new Label({ text: "폰트" }), selFontFamily,
 					new Label({ text: "글자 크기" }), numFontSize,
 					new Label({ text: "굵게" }), chkFontBold,
 					new Label({ text: "글자 색상" }), colorInput,
-					new Label({ text: "행 간격(Padding)" }), hboxRowPadding // 🌟 [변경] numRowPadding 대신 아이콘이 포함된 hboxRowPadding을 넣습니다!
+					new Label({ text: "행 간격(Padding)" }), hboxRowPadding
 				]
-			});
+			}).addStyleClass("sacLeftAlignForm"); // 👈 🌟 [여기에 추가!] 위에서 만든 스타일 이름을 달아줍니다.
 
 			oForm.placeAt(container);
 
