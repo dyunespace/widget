@@ -173,7 +173,23 @@
 				`;
 				document.head.appendChild(styleEl);
 			}
+			
+			// 🌟 [추가] 검색창 표시 여부
+			const chkShowSearch = new CheckBox({
+				selected: instance._props.showSearchBox !== false,
+				select: function (oEvent) {
+					instance.updateProp('showSearchBox', oEvent.getParameter('selected'));
+				}
+			});
 
+			// 🌟 [추가] 버튼 표시 여부
+			const chkShowBtns = new CheckBox({
+				selected: instance._props.showExpandCollapseBtn !== false,
+				select: function (oEvent) {
+					instance.updateProp('showExpandCollapseBtn', oEvent.getParameter('selected'));
+				}
+			});
+			
 			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
 			const oForm = new SimpleForm({
 				editable: true,
@@ -182,14 +198,16 @@
 				emptySpanXL: 0, emptySpanL: 0, emptySpanM: 0, emptySpanS: 0,
 				columnsXL: 1, columnsL: 1, columnsM: 1,
 				content: [
-					new Label({ text: "Show ALL node" }), chkShowAll,
+					new Label({ text: "전체 노드 표시" }), chkShowAll,
 					lblShowAllText, txtShowAllText,
-					new Label({ text: "Default Level" }), selDefaultLevel,
+					new Label({ text: "기본 표시 레벨" }), selDefaultLevel,
 					new Label({ text: "폰트" }), selFontFamily,
 					new Label({ text: "글자 크기" }), numFontSize,
 					new Label({ text: "굵게" }), chkFontBold,
 					new Label({ text: "글자 색상" }), colorInput,
-					new Label({ text: "행 간격(Padding)" }), hboxRowPadding
+					new Label({ text: "행 간격 (Padding)" }), hboxRowPadding,
+					new Label({ text: "검색창 표시" }), chkShowSearch,      // 🌟 [추가]
+					new Label({ text: "펼치기/접기 표시" }), chkShowBtns     // 🌟 [추가]
 				]
 			}).addStyleClass("sacLeftAlignForm"); // 👈 🌟 [여기에 추가!] 위에서 만든 스타일 이름을 달아줍니다.
 
@@ -204,7 +222,9 @@
 				numFontSize: numFontSize,
 				chkFontBold: chkFontBold,
 				colorInput: colorInput,
-				numRowPadding: numRowPadding // 🌟 [추가]
+				numRowPadding: numRowPadding,
+				chkShowSearch: chkShowSearch, // 🌟 [추가]
+				chkShowBtns: chkShowBtns     // 🌟 [추가]
 			};
 		});
 	}
@@ -262,6 +282,8 @@
 				if ('treeRowPadding' in changedProps) {
 					this._ui5Controls.numRowPadding.setValue(changedProps.treeRowPadding);
 				}
+				if ('showSearchBox' in changedProps) this._ui5Controls.chkShowSearch.setSelected(changedProps.showSearchBox);
+				if ('showExpandCollapseBtn' in changedProps) this._ui5Controls.chkShowBtns.setSelected(changedProps.showExpandCollapseBtn);
 			}
 		}
 	}
