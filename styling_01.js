@@ -112,15 +112,19 @@
 				}
 			});
 
-			// 🌟 [추가] 숫자 입력창과 (i) 아이콘을 가로(HBox)로 예쁘게 묶어주기
+			// 🌟 [수정] 숫자 입력창과 (i) 아이콘을 가로(HBox)로 묶어주기
 			const hboxRowPadding = new HBox({
 				alignItems: "Center", // 세로 중앙 정렬
 				items: [
 					numRowPadding,
 					new Icon({
-						src: "sap-icon://information",
+						src: "sap-icon://message-information", // 🌟 [변경] SAC 기본 얇은 테두리 아이콘
+						size: "1rem", // 글자 크기와 자연스럽게 매칭
+						color: "#5b738b", // 🌟 [추가] SAC 특유의 은은한 남색/회색 톤
 						tooltip: "0을 입력하면 기본 행 간격이 적용됩니다."
-					}).addStyleClass("sapUiTinyMarginBegin") // 아이콘 왼쪽에 살짝 여백(Margin) 주기
+					})
+					.addStyleClass("sapUiTinyMarginBegin") // 왼쪽 여백
+					.addStyleClass("sapPointer") // 🌟 [추가] 마우스를 올리면 '손가락 모양'으로 변해서 툴팁 대기를 유도함
 				]
 			});
 
