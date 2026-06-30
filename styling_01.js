@@ -11,7 +11,9 @@
 			"sap/m/StepInput",
 			"sap/ui/core/HTML",
 			"sap/m/HBox",         // 🌟 [추가] 가로로 묶어주는 박스
-			"sap/ui/core/Icon"    // 🌟 [추가] 정보 아이콘
+			"sap/ui/core/Icon",    // 🌟 [추가] 정보 아이콘
+			"sap/m/Popover",      // 🌟 [추가] 꼭지 달린 말풍선
+			"sap/m/Text"          // 🌟 [추가] 말풍선 안의 텍스트
 		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon) {
 
 			// 1. Show ALL node (체크박스)
@@ -112,19 +114,40 @@
 				}
 			});
 
-			// 🌟 [수정] 숫자 입력창과 (i) 아이콘을 가로(HBox)로 묶어주기
+			// 🌟 8-1. SAC 스타일의 꼭지 달린 말풍선(Popover) 만들기
+			const oInfoPopover = new Popover({
+				showHeader: false, // 제목 표시줄 숨김
+				placement: "Auto", // 공간에 맞춰 위나 아래로 꼬리가 생김
+				content: [
+					new Text({ 
+						text: "0을 입력하면 기본 행 간격이 적용됩니다." 
+					}).addStyleClass("sapUiSmallMargin") // 글자 주변에 여백을 줘서 답답하지 않게
+				]
+			});
+
+			// 🌟 8-2. 아이콘 만들기
+			const infoIcon = new Icon({
+				src: "sap-icon://message-information",
+				size: "1rem",
+				color: "#5b738b"
+			}).addStyleClass("sapUiTinyMarginBegin sapPointer");
+
+			// 🌟 8-3. 마우스 이벤트 연결 (올리면 열리고, 벗어나면 닫힘)
+			infoIcon.addEventDelegate({
+				onmouseover: function () {
+					oInfoPopover.openBy(infoIcon); // 아이콘을 기준으로 말풍선 열기
+				},
+				onmouseout: function () {
+					oInfoPopover.close(); // 말풍선 닫기
+				}
+			});
+
+			// 🌟 8-4. 숫자 입력창과 아이콘 묶어주기
 			const hboxRowPadding = new HBox({
-				alignItems: "Center", // 세로 중앙 정렬
+				alignItems: "Center",
 				items: [
 					numRowPadding,
-					new Icon({
-						src: "sap-icon://message-information", // 🌟 [변경] SAC 기본 얇은 테두리 아이콘
-						size: "1rem", // 글자 크기와 자연스럽게 매칭
-						color: "#5b738b", // 🌟 [추가] SAC 특유의 은은한 남색/회색 톤
-						tooltip: "0을 입력하면 기본 행 간격이 적용됩니다."
-					})
-					.addStyleClass("sapUiTinyMarginBegin") // 왼쪽 여백
-					.addStyleClass("sapPointer") // 🌟 [추가] 마우스를 올리면 '손가락 모양'으로 변해서 툴팁 대기를 유도함
+					infoIcon
 				]
 			});
 
