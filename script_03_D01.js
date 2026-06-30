@@ -81,9 +81,11 @@
 			'sap/m/ToolbarSpacer',
 			'sap/m/Button',
 			'sap/m/SearchField',
-			'sap/m/VBox'
-			], function (Tree, StandardTreeItem, JSONModel,
-			Toolbar, Title, ToolbarSpacer, Button, SearchField, VBox) {
+			'sap/m/VBox',
+			'sap/m/HBox',              // 🌟 [추가] 가로 배치 박스
+			'sap/m/FlexItemData'       // 🌟 [추가] 자동 길이 조절 마법사
+			// 🌟 주의: function 괄호 안의 이름들도 순서대로 맞춰주세요!
+			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData) {
 
 			// 초기엔 빈 데이터로 시작
 			const oModel = new JSONModel({ nodes: [] });
@@ -151,39 +153,47 @@
 
 			oTree.setModel(oModel);
 
-			const oToolbar = new Toolbar({
-				content: [
-					new Title({ text: 'SAC 연동 트리' }),
-					new ToolbarSpacer(),
-					new Button({
-						icon: 'sap-icon://expand-group',
-						tooltip: '모두 펼치기',
-						press: function () { oTree.expandToLevel(99); } // 모든 레벨 펼치기
-					}),
-					new Button({
-						icon: 'sap-icon://collapse-group',
-						tooltip: '모두 접기',
-						press: function () { oTree.collapseAll(); }
-					})
-				]
-			});
+			// 🌟 1. 펼치기/접기 버튼 생성
+			const btnExpand = new Button({
+				icon: 'sap-icon://expand-group',
+				tooltip: '모두 펼치기',
+				visible: instance._showExpandCollapseBtn,
+				press: function () { oTree.expandToLevel(99); }
+			}).addStyleClass("sapUiTinyMarginBegin"); // 👈 왼쪽 여백 살짝
 
+			const btnCollapse = new Button({
+				icon: 'sap-icon://collapse-group',
+				tooltip: '모두 접기',
+				visible: instance._showExpandCollapseBtn,
+				press: function () { oTree.collapseAll(); }
+			}).addStyleClass("sapUiTinyMarginBegin");
+			
+			// 🌟 2. 검색창 생성 (FlexItemData가 핵심!)
 			const oSearch = new SearchField({
 				placeholder: '검색...',
 				width: '100%',
+				visible: instance._showSearchBox,
+				layoutData: new FlexItemData({ growFactor: 1 }), // 👈 🌟 마법의 코드: 옆에 버튼이 없어지면 남는 공간을 모두 흡수해서 넓어집니다!
 				liveChange: function (oEvent) {
 					const q = oEvent.getParameter('newValue').toLowerCase().trim();
-					// 원본 데이터를 다시 변환하여 필터링 적용
 					const fullData = buildHierarchyFromSAC(instance.dataBinding);
 					oModel.setData({ nodes: filterNodes(fullData, q) });
 					if (q) oTree.expandToLevel(99);
 				}
 			});
+			
+			// 🌟 3. 가로 박스(HBox)에 검색창과 버튼 2개 나란히 꽂기
+			const oTopBar = new HBox({
+				width: '100%',
+				alignItems: 'Center',
+				visible: instance._showSearchBox || instance._showExpandCollapseBtn, // 둘 다 끄면 줄(Row) 전체를 숨김
+				items: [oSearch, btnExpand, btnCollapse]
+			}).addStyleClass("sapUiTinyMarginBottom"); // 👈 트리와 간격 살짝 띄우기
 
 			const oVBox = new VBox({
 				width: '100%',
 				height: '100%',
-				items: [oToolbar, oSearch, oTree]
+				items: [oTopBar, oTree] // 🌟 기존 oToolbar 대신 oTopBar 하나만 넣습니다.
 			});
 
 			oVBox.placeAt(container);
@@ -191,6 +201,10 @@
 			instance._ui5Model = oModel;
 			instance._ui5Tree  = oTree;
 			instance._ui5VBox  = oVBox;
+			instance._oSearch = oSearch;
+			instance._btnExpand = btnExpand;
+			instance._btnCollapse = btnCollapse;
+			instance._oTopBar = oTopBar;
 			
 			// 🌟 [추가] UI5 로딩이 늦게 끝나서 아까 대기 중이던 데이터가 있다면 지금 즉시 그려줍니다!
 			if (instance._lastTreeData) {
@@ -226,6 +240,8 @@
 			this._treeRowPadding = 0; //0은 내부적으로 기본값
 			this._fontStyleEl = null;
 			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
+			this._showSearchBox = true;           // 🌟 [추가] 검색창 기본값
+			this._showExpandCollapseBtn = true;   // 🌟 [추가] 버튼 기본값
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -311,6 +327,20 @@
 			}
 			if ('treeRowPadding' in changedProps) {
 				this._treeRowPadding = changedProps.treeRowPadding;
+			}
+			// 🌟 [추가] 검색창/버튼 실시간 토글 로직
+			if ('showSearchBox' in changedProps) {
+				this._showSearchBox = changedProps.showSearchBox;
+				if (this._oSearch) this._oSearch.setVisible(this._showSearchBox);
+				this._updateTopBarVisibility();
+			}
+			if ('showExpandCollapseBtn' in changedProps) {
+				this._showExpandCollapseBtn = changedProps.showExpandCollapseBtn;
+				if (this._btnExpand && this._btnCollapse) {
+					this._btnExpand.setVisible(this._showExpandCollapseBtn);
+					this._btnCollapse.setVisible(this._showExpandCollapseBtn);
+				}
+				this._updateTopBarVisibility();
 			}
 			this._applyFontStyle();
 
@@ -425,6 +455,13 @@
 
 			// 브라우저에 빵 쏘기
 			this._fontStyleEl.textContent = cssText;
+		}
+		
+		// 🌟 [추가] 검색창과 버튼 둘 다 꺼지면 아예 빈 줄 공간 자체를 지워버리는 함수
+		_updateTopBarVisibility() {
+			if (this._oTopBar) {
+				this._oTopBar.setVisible(this._showSearchBox || this._showExpandCollapseBtn);
+			}
 		}
 	}
 	
