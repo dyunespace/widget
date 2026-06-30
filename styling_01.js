@@ -125,20 +125,22 @@
 				]
 			});
 
-			// 🌟 8-2. 아이콘 만들기
+			// 🌟 8-2. 아이콘 만들기 (클릭 시 열림)
 			const infoIcon = new Icon({
 				src: "sap-icon://message-information",
 				size: "1rem",
-				color: "#5b738b"
+				color: "#5b738b",
+				press: function (oEvent) {
+					// 아이콘을 누르면 팝오버가 짠! 하고 열림
+					oInfoPopover.openBy(oEvent.getSource());
+				}
 			}).addStyleClass("sapUiTinyMarginBegin sapPointer");
 
-			// 🌟 8-3. 마우스 이벤트 연결 (올리면 열리고, 벗어나면 닫힘)
+			// 🌟 8-3. 마우스 이벤트 연결 (마우스를 치우면 서서히 닫힘)
 			infoIcon.addEventDelegate({
-				onmouseover: function () {
-					oInfoPopover.openBy(infoIcon); // 아이콘을 기준으로 말풍선 열기
-				},
 				onmouseout: function () {
-					oInfoPopover.close(); // 말풍선 닫기
+					// 마우스가 아이콘 밖으로 나가면, UI5 기본 애니메이션과 함께 서서히 사라짐!
+					oInfoPopover.close(); 
 				}
 			});
 
