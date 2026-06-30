@@ -152,14 +152,14 @@
 
 			// 🌟 1. 펼치기/접기 버튼 생성
 			const btnExpand = new Button({
-				icon: 'sap-icon://expand-group',
+				icon: 'sap-icon://expand',
 				tooltip: '모두 펼치기',
 				visible: instance._showExpandCollapseBtn,
 				press: function () { oTree.expandToLevel(99); }
 			}).addStyleClass("sapUiTinyMarginBegin"); // 👈 왼쪽 여백 살짝
 
 			const btnCollapse = new Button({
-				icon: 'sap-icon://collapse-group',
+				icon: 'sap-icon://collapse',
 				tooltip: '모두 접기',
 				visible: instance._showExpandCollapseBtn,
 				press: function () { oTree.collapseAll(); }
