@@ -490,7 +490,8 @@
 
 			// 선 및 아이콘 제어 (화살표, 체크박스)
 			if (this._itemArrowColor) {
-				cssText += '.' + this._widgetUid + ' .sapMTreeIcon { color: ' + this._itemArrowColor + ' !important; }';
+				// 🌟 [수정] UI5의 진짜 펼치기/접기 화살표(Expander) 클래스를 정확히 타격!
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBaseExpander .sapUiIcon { color: ' + this._itemArrowColor + ' !important; }';
 			}
 			if (this._itemCheckboxColor) {
 				cssText += '.' + this._widgetUid + ' .sapMCbBg { border-color: ' + this._itemCheckboxColor + ' !important; color: ' + this._itemCheckboxColor + ' !important; }';
