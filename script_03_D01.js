@@ -489,9 +489,14 @@
 			}
 
 			// 선 및 아이콘 제어 (화살표, 체크박스)
+			// 선 및 아이콘 제어 (화살표, 체크박스)
 			if (this._itemArrowColor) {
-				// 🌟 [수정] UI5의 진짜 펼치기/접기 화살표(Expander) 클래스를 정확히 타격!
-				cssText += '.' + this._widgetUid + ' .sapMTreeItemBaseExpander .sapUiIcon { color: ' + this._itemArrowColor + ' !important; }';
+				// 🌟 [수정] 화살표 껍데기, 내부 아이콘, 가짜 요소(::before)까지 3단 콤보로 싹 다 갈색으로 덮어버립니다!
+				cssText += 
+					'.' + this._widgetUid + ' .sapMTreeItemBaseExpander, ' +
+					'.' + this._widgetUid + ' .sapMTreeItemBaseExpander .sapUiIcon, ' +
+					'.' + this._widgetUid + ' .sapMTreeItemBaseExpander::before { ' +
+					'color: ' + this._itemArrowColor + ' !important; }';
 			}
 			if (this._itemCheckboxColor) {
 				cssText += '.' + this._widgetUid + ' .sapMCbBg { border-color: ' + this._itemCheckboxColor + ' !important; color: ' + this._itemCheckboxColor + ' !important; }';
