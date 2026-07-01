@@ -67,6 +67,66 @@
 			"type": "string",
 			"default": "#32363a",
 			"description": "트리/검색창 글자 색상"
+		},
+		"treeRowPadding": {
+			"type": "integer",
+			"default": 0,
+			"description": "트리 노드 행 간격(위아래 Padding px), 0=기본값"
+		},
+		"showSearchBox": {
+			"type": "boolean",
+			"default": true,
+			"description": "검색창 표시 여부"
+		},
+		"showExpandCollapseBtn": {
+			"type": "boolean",
+			"default": true,
+			"description": "펼치기/접기 버튼 표시 여부"
+		},
+		"rowBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 기본 배경색 (비어있으면 기본값)"
+		},
+		"rowHoverBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 마우스 오버 배경색"
+		},
+		"rowSelectedBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 선택 시 배경색"
+		},
+		"itemArrowColor": {
+			"type": "string",
+			"default": "",
+			"description": "펼치기/접기 화살표 색상"
+		},
+		"itemCheckboxColor": {
+			"type": "string",
+			"default": "",
+			"description": "체크박스 테두리 및 마크 색상"
+		},
+		"showRowSeparator": {
+			"type": "boolean",
+			"default": false,
+			"description": "행 구분선 표시 여부 (디폴트: false)"
+		},
+		"rowSeparatorColor": {
+			"type": "string",
+			"default": "#dcdcdc",
+			"description": "행 구분선 색상"
+		},
+		"rowSeparatorThickness": {
+			"type": "integer",
+			"default": 1,
+			"description": "행 구분선 두께(px)"
+		},
+		"rowSeparatorStyle": {
+			"type": "string",
+			"default": "solid",
+			"description": "행 구분선 스타일(solid, dashed, dotted, double)"
 		}
 	},
 	"methods": {
