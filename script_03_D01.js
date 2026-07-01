@@ -1,29 +1,5 @@
 (function () {
 	console.log("Custom Tree : Main 20260626_13:42");
-	/* 
-	buildHierarchyFromSAC
-	filterNodes
-	buildUI5Tree
-	  const oModel = new JSONModel({ nodes: [] });
-	  const oTree = new Tree({ ~
-	  oTree.bindItems({ ~
-	  oTree.setModel(oModel);
-	  const oToolbar = new Toolbar({ ~
-	  const oSearch = new SearchField({ ~
-	  const oVBox = new VBox({ ~
-	  oVBox.placeAt(container);
-	Main
-	└ constructor
-	└ connectedCallback
-	└ disconnectedCallback
-	└ onCustomWidgetResize
-	└ onCustomWidgetAfterUpdate
-	└ onCustomWidgetDestroy
-	└ getSelected
-	└ setExpandLevel(level)
-	customElements.define('com-sap-sac-hierarchy-jjung-main', Main);
-	*/
-  
 	// <7> SAC 평면 데이터를 계층형(Tree)으로 변환
 	function buildHierarchyFromSAC(dataBinding) {
 		if (!dataBinding || !dataBinding.data) return [];
