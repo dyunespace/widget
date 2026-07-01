@@ -156,14 +156,14 @@
 				tooltip: '모두 펼치기',
 				visible: instance._showExpandCollapseBtn,
 				press: function () { oTree.expandToLevel(99); }
-			}).addStyleClass("sapUiTinyMarginBegin"); // 👈 왼쪽 여백 살짝
+			}).addStyleClass("sapUiTinyMarginBegin sacWhiteBtn"); // 👈 왼쪽 여백 살짝
 
 			const btnCollapse = new Button({
 				icon: 'sap-icon://collapse',
 				tooltip: '모두 접기',
 				visible: instance._showExpandCollapseBtn,
 				press: function () { oTree.collapseAll(); }
-			}).addStyleClass("sapUiTinyMarginBegin");
+			}).addStyleClass("sapUiTinyMarginBegin sacWhiteBtn");
 			
 			// 🌟 2. 검색창 생성 (FlexItemData가 핵심!)
 			const oSearch = new SearchField({
@@ -239,6 +239,16 @@
 			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
 			this._showSearchBox = true;           // 🌟 [추가] 검색창 기본값
 			this._showExpandCollapseBtn = true;   // 🌟 [추가] 버튼 기본값
+			// 🌟 [추가] 6대 테마 제어 변수 (기본값 세팅)
+			this._rowBgColor = "";
+			this._rowHoverBgColor = "";
+			this._rowSelectedBgColor = "";
+			this._itemArrowColor = "";
+			this._itemCheckboxColor = "";
+			this._showRowSeparator = false; // 기본값은 선 없음!
+			this._rowSeparatorColor = "#dcdcdc";
+			this._rowSeparatorThickness = 1;
+			this._rowSeparatorStyle = "solid";
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -339,6 +349,17 @@
 				}
 				this._updateTopBarVisibility();
 			}
+			// 🌟 [추가] 스타일 패널에서 넘어오는 9가지 값 주머니에 담기
+			if ('rowBgColor' in changedProps) this._rowBgColor = changedProps.rowBgColor;
+			if ('rowHoverBgColor' in changedProps) this._rowHoverBgColor = changedProps.rowHoverBgColor;
+			if ('rowSelectedBgColor' in changedProps) this._rowSelectedBgColor = changedProps.rowSelectedBgColor;
+			if ('itemArrowColor' in changedProps) this._itemArrowColor = changedProps.itemArrowColor;
+			if ('itemCheckboxColor' in changedProps) this._itemCheckboxColor = changedProps.itemCheckboxColor;
+			if ('showRowSeparator' in changedProps) this._showRowSeparator = changedProps.showRowSeparator;
+			if ('rowSeparatorColor' in changedProps) this._rowSeparatorColor = changedProps.rowSeparatorColor;
+			if ('rowSeparatorThickness' in changedProps) this._rowSeparatorThickness = changedProps.rowSeparatorThickness;
+			if ('rowSeparatorStyle' in changedProps) this._rowSeparatorStyle = changedProps.rowSeparatorStyle;
+			
 			this._applyFontStyle();
 
 			const binding = this.dataBinding;
@@ -449,6 +470,44 @@
 					'  height: auto !important;' + 
 					'}';
 			}
+			
+			// 🌟 [추가/확장] 6대 시각 디자인 요소를 강제로 주입하는 핵심 CSS 엔진
+			
+			// 면 제어 (기본, 호버, 선택 배경색)
+			if (this._rowBgColor) {
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase { background-color: ' + this._rowBgColor + ' !important; }';
+			}
+			if (this._rowHoverBgColor) {
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase:hover { background-color: ' + this._rowHoverBgColor + ' !important; }';
+			}
+			if (this._rowSelectedBgColor) {
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMTreeItemBaseSelected { background-color: ' + this._rowSelectedBgColor + ' !important; }';
+			}
+
+			// 선 및 아이콘 제어 (화살표, 체크박스)
+			if (this._itemArrowColor) {
+				cssText += '.' + this._widgetUid + ' .sapMTreeIcon { color: ' + this._itemArrowColor + ' !important; }';
+			}
+			if (this._itemCheckboxColor) {
+				cssText += '.' + this._widgetUid + ' .sapMCbBg { border-color: ' + this._itemCheckboxColor + ' !important; color: ' + this._itemCheckboxColor + ' !important; }';
+			}
+
+			// 행 구분선 제어 (스위치가 켜졌을 때만 그리고, 꺼지면 아예 선을 투명화시킴)
+			if (this._showRowSeparator) {
+				const thick = this._rowSeparatorThickness !== undefined ? this._rowSeparatorThickness : 1;
+				const style = this._rowSeparatorStyle || 'solid';
+				const color = this._rowSeparatorColor || '#dcdcdc';
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase { border-bottom: ' + thick + 'px ' + style + ' ' + color + ' !important; }';
+			} else {
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase { border-bottom: none !important; }';
+			}
+			// 🌟 [여기에 추가] 버튼 배경색을 강제로 하얗게 칠하는 CSS 규칙 얹기
+			cssText +=
+				'.' + this._widgetUid + ' .sacWhiteBtn .sapMBtnInner {' +
+				'  background-color: #ffffff !important;' +  // 배경색 하양
+				'  background-image: none !important;' +     // UI5 순정 입체감 그라데이션 제거
+				'  border: 1px solid #dcdcdc !important;' +  // 검색창 테두리와 어울리는 은은한 선 추가
+				'}';
 
 			// 브라우저에 빵 쏘기
 			this._fontStyleEl.textContent = cssText;
