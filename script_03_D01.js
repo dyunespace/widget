@@ -83,7 +83,23 @@
 			'sap/m/FlexItemData'       // 🌟 [추가] 자동 길이 조절 마법사
 			// 🌟 주의: function 괄호 안의 이름들도 순서대로 맞춰주세요!
 			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData) {
+			
+			// 🌟 1. [좀비 방어막] 라이브러리 다운로드 중에 SAC가 위젯을 껐다면, 화면 생성을 즉시 중단!
+			if (!instance._built) return; 
 
+			// 🌟 2. [메모리 청소] 혹시라도 기존에 연결되어 있던 VBox가 있다면 완벽히 파괴!
+			if (instance._ui5VBox) {
+				try { instance._ui5VBox.destroy(); } catch (e) {}
+				instance._ui5VBox = null;
+			}
+
+			// 🌟 3. [물리적 청소] 컨테이너 안에 스타일 태그(<style>) 빼고 남아있는 모든 좀비 DOM 강제 소각!
+			Array.from(container.children).forEach(child => {
+				if (child.tagName !== 'STYLE') {
+					container.removeChild(child);
+				}
+			});			
+			
 			// 초기엔 빈 데이터로 시작
 			const oModel = new JSONModel({ nodes: [] });
 
