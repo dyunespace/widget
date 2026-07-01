@@ -91,6 +91,14 @@
 				mode: 'MultiSelect', 
 				includeItemInSelection: true,
 				width: '100%',
+				// 🌟 [여기에 추가!!] UI5가 내부적으로 렌더링을 완벽하게 끝냈을 때 딱 한 번만 실행됨
+				updateFinished: function () {
+					if (instance._needsExpansion) {
+						oTree.collapseAll();
+						oTree.expandToLevel(instance._defaultExpandLevel);
+						instance._needsExpansion = false; // 볼일 끝났으니 신호 끄기
+					}
+				},
 				selectionChange: function (oEvent) {
 					const oItem = oEvent.getParameter('listItem');
 					const bSelected = oEvent.getParameter('selected'); // 체크/해제 여부
@@ -203,15 +211,8 @@
 			instance._btnCollapse = btnCollapse;
 			instance._oTopBar = oTopBar;
 			
-			// 🌟 [추가] UI5 로딩이 늦게 끝나서 아까 대기 중이던 데이터가 있다면 지금 즉시 그려줍니다!
-			if (instance._lastTreeData) {
-				const finalData = instance._showAllNode
-					? [{ id: 'ALL', text: instance._showAllNodeText || 'All', selected: false, children: instance._lastTreeData }]
-					: instance._lastTreeData;
-				
-				oModel.setData({ nodes: finalData });
-				oTree.expandToLevel(instance._defaultExpandLevel);
-			}
+			// 🌟 [호출 1] UI5 로딩이 무사히 끝났으니, 혹시 데이터 와있는지 확인하고 그려라!
+			instance._refreshTreeData();
 		});
 	}
 
@@ -362,32 +363,33 @@
 			
 			this._applyFontStyle();
 
-			const binding = this.dataBinding;
-			//if (!binding || binding.state !== 'success') return;
-			
-			if (binding && binding.state === 'success') {
-				this._lastTreeData = buildHierarchyFromSAC(binding);
-			}
-
-			if (!this._lastTreeData) return;
-			if (this._ui5Model) {
-				const finalData = this._showAllNode
-				? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
-				: this._lastTreeData;
-
-				this._ui5Model.setData({ nodes: finalData });
-
-				if (this._ui5Tree) {
-					this._ui5Tree.collapseAll();
-					this._ui5Tree.expandToLevel(this._defaultExpandLevel);
-				}
-			}
+			// 🌟 [호출 2] SAC 본체에서 새로운 데이터나 설정이 도착했으니, 새로 그려라!
+			this._refreshTreeData();
 		}
 
 		onCustomWidgetDestroy () {
 			if (this._ui5VBox) {
 				try { this._ui5VBox.destroy(); } catch (e) {}
 			}
+		}
+		
+		// 🌟 [추가] 타이밍 엇갈림을 방지하는 만능 데이터 주입기!
+		_refreshTreeData() {
+			if (this.dataBinding && this.dataBinding.state === 'success' && this.dataBinding.data) {
+				this._lastTreeData = buildHierarchyFromSAC(this.dataBinding);
+			}
+
+			if (!this._lastTreeData || !this._ui5Model || !this._ui5Tree) return;
+
+			const finalData = this._showAllNode
+				? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
+				: this._lastTreeData;
+
+			// 🌟 트리에게 "데이터 갱신했으니, 이따가 화면 다 그리면 펼쳐!" 라고 신호 보내기
+			this._needsExpansion = true; 
+			
+			// 데이터 엎어치기
+			this._ui5Model.setData({ nodes: finalData });
 		}
 		
 		// Custom Method 영역
