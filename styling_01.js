@@ -16,6 +16,48 @@
 			"sap/m/Popover",      // 🌟 [추가] 꼭지 달린 말풍선
 			"sap/m/Text"          // 🌟 [추가] 말풍선 안의 텍스트
 		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon, Popover, Text) {
+			
+			// 🌟 [추가] 색상 피커 + 기본값 토글을 가로로 예쁘게 묶어주는 스마트 헬퍼 함수
+			function createColorPropRow(propName, defaultHex) {
+				const isDefault = !instance._props[propName];
+				const colorVal = instance._props[propName] || defaultHex;
+
+				const cp = new HTML({
+					content: "<input type='color' value='" + colorVal + "' style='width:40px; height: 2rem; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;' " + (isDefault ? "disabled" : "") + ">",
+					afterRendering: function () {
+						const dom = this.getDomRef();
+						if (dom) {
+							dom.addEventListener('change', function (e) {
+								instance.updateProp(propName, e.target.value);
+							});
+						}
+					}
+				});
+
+				const cb = new CheckBox({
+					text: "기본값 사용",
+					selected: isDefault,
+					select: function (oEvent) {
+						const checked = oEvent.getParameter('selected');
+						const dom = cp.getDomRef();
+						if (checked) {
+							instance.updateProp(propName, "");
+							if (dom) dom.disabled = true;
+						} else {
+							const currentPickerVal = dom ? dom.value : defaultHex;
+							instance.updateProp(propName, currentPickerVal);
+							if (dom) dom.disabled = false;
+						}
+					}
+				});
+
+				const hbox = new HBox({
+					alignItems: "Center",
+					items: [cp, cb.addStyleClass("sapUiTinyMarginBegin")]
+				});
+
+				return { hbox: hbox, cp: cp, cb: cb };
+			}
 
 			// 1. Show ALL node (체크박스)
 			const chkShowAll = new CheckBox({
@@ -190,6 +232,56 @@
 				}
 			});
 			
+			// 🌟 6대 시각 디자인 컨트롤들 대량 생성!
+			const rowBg = createColorPropRow('rowBgColor', '#ffffff');
+			const rowHoverBg = createColorPropRow('rowHoverBgColor', '#f5f5f5');
+			const rowSelectedBg = createColorPropRow('rowSelectedBgColor', '#e0f0ff');
+			const itemArrow = createColorPropRow('itemArrowColor', '#5b738b');
+			const itemCbColor = createColorPropRow('itemCheckboxColor', '#0070f2');
+			const sepColor = createColorPropRow('rowSeparatorColor', '#dcdcdc');
+
+			// 행 구분선 토글 스위치 (체크하면 하위 세부메뉴 싹 보임!)
+			const chkShowSep = new CheckBox({
+				selected: instance._props.showRowSeparator || false,
+				select: function (oEvent) {
+					const bSelected = oEvent.getParameter('selected');
+					instance.updateProp('showRowSeparator', bSelected);
+					
+					lblSepColor.setVisible(bSelected);
+					sepColor.hbox.setVisible(bSelected);
+					lblSepThick.setVisible(bSelected);
+					numSepThickness.setVisible(bSelected);
+					lblSepStyle.setVisible(bSelected);
+					selSepStyle.setVisible(bSelected);
+				}
+			});
+
+			const lblSepColor = new Label({ text: "구분선 색상", visible: instance._props.showRowSeparator || false });
+			const lblSepThick = new Label({ text: "구분선 두께(px)", visible: instance._props.showRowSeparator || false });
+			const numSepThickness = new StepInput({
+				value: instance._props.rowSeparatorThickness !== undefined ? instance._props.rowSeparatorThickness : 1,
+				min: 1, max: 10,
+				visible: instance._props.showRowSeparator || false,
+				change: function (oEvent) {
+					instance.updateProp('rowSeparatorThickness', oEvent.getParameter('value'));
+				}
+			});
+
+			const lblSepStyle = new Label({ text: "구분선 스타일", visible: instance._props.showRowSeparator || false });
+			const selSepStyle = new Select({
+				selectedKey: instance._props.rowSeparatorStyle || 'solid',
+				visible: instance._props.showRowSeparator || false,
+				items: [
+					new Item({ key: 'solid', text: '실선 (Solid)' }),
+					new Item({ key: 'dashed', text: '파선 (Dashed)' }),
+					new Item({ key: 'dotted', text: '점선 (Dotted)' }),
+					new Item({ key: 'double', text: '겹선 (Double)' })
+				],
+				change: function (oEvent) {
+					instance.updateProp('rowSeparatorStyle', oEvent.getParameter('selectedItem').getKey());
+				}
+			});
+			
 			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
 			const oForm = new SimpleForm({
 				editable: true,
@@ -207,7 +299,18 @@
 					new Label({ text: "글자 색상" }), colorInput,
 					new Label({ text: "행 간격 (Padding)" }), hboxRowPadding,
 					new Label({ text: "검색창 표시" }), chkShowSearch,      // 🌟 [추가]
-					new Label({ text: "펼치기/접기 표시" }), chkShowBtns     // 🌟 [추가]
+					new Label({ text: "펼치기/접기 표시" }), chkShowBtns,     // 🌟 [추가]
+					
+					// 🌟 [추가] 오와 열이 완벽히 정렬되는 신규 커스텀 프로퍼티 폼 구성
+					new Label({ text: "노드 기본 배경색" }), rowBg.hbox,
+					new Label({ text: "노드 호버 배경색" }), rowHoverBg.hbox,
+					new Label({ text: "노드 선택 배경색" }), rowSelectedBg.hbox,
+					new Label({ text: "화살표 아이콘 색상" }), itemArrow.hbox,
+					new Label({ text: "체크박스 색상" }), itemCbColor.hbox,
+					new Label({ text: "행 구분선 표시" }), chkShowSep,
+					lblSepColor, sepColor.hbox,
+					lblSepThick, numSepThickness,
+					lblSepStyle, selSepStyle
 				]
 			}).addStyleClass("sacLeftAlignForm"); // 👈 🌟 [여기에 추가!] 위에서 만든 스타일 이름을 달아줍니다.
 
@@ -224,7 +327,18 @@
 				colorInput: colorInput,
 				numRowPadding: numRowPadding,
 				chkShowSearch: chkShowSearch, // 🌟 [추가]
-				chkShowBtns: chkShowBtns     // 🌟 [추가]
+				chkShowBtns: chkShowBtns,     // 🌟 [추가]
+				
+				// 🌟 신규 부품 등록
+				rowBgCp: rowBg.cp, rowBgCb: rowBg.cb,
+				rowHoverBgCp: rowHoverBg.cp, rowHoverBgCb: rowHoverBg.cb,
+				rowSelectedBgCp: rowSelectedBg.cp, rowSelectedBgCb: rowSelectedBg.cb,
+				itemArrowCp: itemArrow.cp, itemArrowCb: itemArrow.cb,
+				itemCbColorCp: itemCbColor.cp, itemCbColorCb: itemCbColor.cb,
+				chkShowSep: chkShowSep,
+				lblSepColor: lblSepColor, sepColorCp: sepColor.cp, sepColorCb: sepColor.cb, sepColorHbox: sepColor.hbox,
+				lblSepThick: lblSepThick, numSepThickness: numSepThickness,
+				lblSepStyle: lblSepStyle, selSepStyle: selSepStyle
 			};
 		});
 	}
@@ -284,6 +398,39 @@
 				}
 				if ('showSearchBox' in changedProps) this._ui5Controls.chkShowSearch.setSelected(changedProps.showSearchBox);
 				if ('showExpandCollapseBtn' in changedProps) this._ui5Controls.chkShowBtns.setSelected(changedProps.showExpandCollapseBtn);
+				
+				// 스마트 컬러 리프레시 유틸리티
+				const refreshColorControl = (propName, cp, cb, defaultHex) => {
+					if (propName in changedProps) {
+						const val = changedProps[propName];
+						cb.setSelected(!val);
+						const dom = cp.getDomRef();
+						if (dom) {
+							dom.value = val || defaultHex;
+							dom.disabled = !val;
+						}
+					}
+				};
+
+				refreshColorControl('rowBgColor', this._ui5Controls.rowBgCp, this._ui5Controls.rowBgCb, '#ffffff');
+				refreshColorControl('rowHoverBgColor', this._ui5Controls.rowHoverBgCp, this._ui5Controls.rowHoverBgCb, '#f5f5f5');
+				refreshColorControl('rowSelectedBgColor', this._ui5Controls.rowSelectedBgCp, this._ui5Controls.rowSelectedBgCb, '#e0f0ff');
+				refreshColorControl('itemArrowColor', this._ui5Controls.itemArrowCp, this._ui5Controls.itemArrowCb, '#5b738b');
+				refreshColorControl('itemCheckboxColor', this._ui5Controls.itemCbColorCp, this._ui5Controls.itemCbColorCb, '#0070f2');
+				refreshColorControl('rowSeparatorColor', this._ui5Controls.sepColorCp, this._ui5Controls.sepColorCb, '#dcdcdc');
+
+				if ('showRowSeparator' in changedProps) {
+					const bVisible = !!changedProps.showRowSeparator;
+					this._ui5Controls.chkShowSep.setSelected(bVisible);
+					this._ui5Controls.lblSepColor.setVisible(bVisible);
+					this._ui5Controls.sepColorHbox.setVisible(bVisible);
+					this._ui5Controls.lblSepThick.setVisible(bVisible);
+					this._ui5Controls.numSepThickness.setValue(this._props.rowSeparatorThickness || 1).setVisible(bVisible);
+					this._ui5Controls.lblSepStyle.setVisible(bVisible);
+					this._ui5Controls.selSepStyle.setSelectedKey(this._props.rowSeparatorStyle || 'solid').setVisible(bVisible);
+				}
+				if ('rowSeparatorThickness' in changedProps) this._ui5Controls.numSepThickness.setValue(changedProps.rowSeparatorThickness);
+				if ('rowSeparatorStyle' in changedProps) this._ui5Controls.selSepStyle.setSelectedKey(changedProps.rowSeparatorStyle);
 			}
 		}
 	}
