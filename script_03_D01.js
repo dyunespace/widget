@@ -481,7 +481,11 @@
 				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase:hover { background-color: ' + this._rowHoverBgColor + ' !important; }';
 			}
 			if (this._rowSelectedBgColor) {
-				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMTreeItemBaseSelected { background-color: ' + this._rowSelectedBgColor + ' !important; }';
+				// 🌟 [수정된 부분] UI5의 진짜 선택 상태 클래스인 sapMLIBSelected 로 변경!
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMLIBSelected { background-color: ' + this._rowSelectedBgColor + ' !important; }';
+				
+				// 🌟 [보너스] 선택된 행 위에 마우스를 올렸을 때 색이 날아가지 않도록 방어하는 코드 추가
+				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMLIBSelected:hover { background-color: ' + this._rowSelectedBgColor + ' !important; }';
 			}
 
 			// 선 및 아이콘 제어 (화살표, 체크박스)
