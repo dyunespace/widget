@@ -143,7 +143,8 @@
 				path: '/nodes',
 				template: new StandardTreeItem({ 
 					title: '{text}',
-					selected: '{selected}' 
+					selected: '{selected}',
+					type: 'Active'    // ← 추가
 				}),
 				parameters: { arrayNames: ['children'] }
 			});
