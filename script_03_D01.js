@@ -263,6 +263,33 @@
 
 				this._fontStyleEl = document.createElement('style');
 				this._container.appendChild(this._fontStyleEl);
+
+				// 🌟 타겟을 판별하는 스마트 이벤트 포워딩
+				const forwardEvent = (e) => {
+					if (!e.isTrusted) return;
+
+					const targetClass = typeof e.target.className === 'string' ? e.target.className : '';
+					const targetTag = e.target.tagName ? e.target.tagName.toUpperCase() : '';
+
+					// 체크박스/화살표/검색창/버튼은 UI5가 처리하도록 그냥 통과
+					if (
+						targetClass.includes('sapMCb') ||
+						targetClass.includes('sapUiIcon') ||
+						targetTag === 'INPUT' ||
+						targetClass.includes('sapMBtn')
+					) return;
+
+					// 빈 여백/텍스트 클릭 시에만 위젯 선택 이벤트 복제
+					this.dispatchEvent(new MouseEvent(e.type, {
+						bubbles: true, composed: true, cancelable: true,
+						view: window, clientX: e.clientX, clientY: e.clientY
+					}));
+				};
+
+				// bubble 단계(false)로 등록 → UI5가 이벤트를 먼저 처리
+				this._container.addEventListener('mousedown', forwardEvent, false);
+				this._container.addEventListener('pointerdown', forwardEvent, false);
+				this._container.addEventListener('click', forwardEvent, false);
 			}
 
 			if (this._built) return;
