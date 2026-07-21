@@ -251,15 +251,6 @@
 			this._rowSeparatorColor = "#dcdcdc";
 			this._rowSeparatorThickness = 1;
 			this._rowSeparatorStyle = "solid";
-
-			this._forwardEvent = (e) => {
-				if (e.isTrusted) {
-					this.dispatchEvent(new MouseEvent(e.type, {
-						bubbles: true, composed: true, cancelable: true,
-						view: window, clientX: e.clientX, clientY: e.clientY
-					}));
-				}
-			};
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -273,12 +264,6 @@
 				this._fontStyleEl = document.createElement('style');
 				this._container.appendChild(this._fontStyleEl);
 			}
-
-			// view→edit 전환 시에도 항상 재등록 (remove 후 add로 중복 방지)
-			['mousedown', 'pointerdown', 'click'].forEach(type => {
-				this._container.removeEventListener(type, this._forwardEvent, true);
-				this._container.addEventListener(type, this._forwardEvent, true);
-			});
 
 			if (this._built) return;
 			this._built = true;
