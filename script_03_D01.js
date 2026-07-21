@@ -55,10 +55,10 @@
 			'sap/m/Button',
 			'sap/m/SearchField',
 			'sap/m/VBox',
-			'sap/m/HBox',              // 🌟 [추가] 가로 배치 박스
-			'sap/m/FlexItemData'       // 🌟 [추가] 자동 길이 조절 마법사
-			// 🌟 주의: function 괄호 안의 이름들도 순서대로 맞춰주세요!
-			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData) {
+			'sap/m/HBox',
+			'sap/m/FlexItemData',
+			'sap/m/ScrollContainer'
+			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData, ScrollContainer) {
 			
 			// 🌟 1. [좀비 방어막] 라이브러리 다운로드 중에 SAC가 위젯을 껐다면, 화면 생성을 즉시 중단!
 			if (!instance._built) return; 
@@ -188,10 +188,18 @@
 				items: [oSearch, btnExpand, btnCollapse]
 			}).addStyleClass("sapUiTinyMarginBottom"); // 👈 트리와 간격 살짝 띄우기
 
+			const oScroll = new ScrollContainer({
+				width: '100%',
+				height: '100%',
+				vertical: true,
+				horizontal: false,
+				content: [oTree]
+			}).addStyleClass('treeScrollArea');
+
 			const oVBox = new VBox({
 				width: '100%',
 				height: '100%',
-				items: [oTopBar, oTree] // 🌟 기존 oToolbar 대신 oTopBar 하나만 넣습니다.
+				items: [oTopBar, oScroll]
 			});
 
 			oVBox.placeAt(container);
@@ -244,16 +252,11 @@
 			this._rowSeparatorThickness = 1;
 			this._rowSeparatorStyle = "solid";
 
-			// 위젯 선택 이벤트 전달용 (재등록을 위해 constructor에서 정의)
 			this._forwardEvent = (e) => {
 				if (e.isTrusted) {
 					this.dispatchEvent(new MouseEvent(e.type, {
-						bubbles: true,
-						composed: true,
-						cancelable: true,
-						view: window,
-						clientX: e.clientX,
-						clientY: e.clientY
+						bubbles: true, composed: true, cancelable: true,
+						view: window, clientX: e.clientX, clientY: e.clientY
 					}));
 				}
 			};
@@ -271,14 +274,11 @@
 				this._container.appendChild(this._fontStyleEl);
 			}
 
-			// view→edit 전환 시에도 forwardEvent가 항상 살아있도록 매번 재등록
-			// (removeEventListener 후 addEventListener로 중복 방지)
-			this._container.removeEventListener('mousedown',  this._forwardEvent, true);
-			this._container.removeEventListener('pointerdown', this._forwardEvent, true);
-			this._container.removeEventListener('click',      this._forwardEvent, true);
-			this._container.addEventListener('mousedown',  this._forwardEvent, true);
-			this._container.addEventListener('pointerdown', this._forwardEvent, true);
-			this._container.addEventListener('click',      this._forwardEvent, true);
+			// view→edit 전환 시에도 항상 재등록 (remove 후 add로 중복 방지)
+			['mousedown', 'pointerdown', 'click'].forEach(type => {
+				this._container.removeEventListener(type, this._forwardEvent, true);
+				this._container.addEventListener(type, this._forwardEvent, true);
+			});
 
 			if (this._built) return;
 			this._built = true;
@@ -514,6 +514,13 @@
 				'  background-color: #ffffff !important;' +  // 배경색 하양
 				'  background-image: none !important;' +     // UI5 순정 입체감 그라데이션 제거
 				'  border: 1px solid #dcdcdc !important;' +  // 검색창 테두리와 어울리는 은은한 선 추가
+				'}';
+
+			// treeScrollArea가 남은 공간 전부 차지
+			cssText +=
+				'.' + this._widgetUid + ' .treeScrollArea {' +
+				'  flex: 1 1 0 !important;' +
+				'  min-height: 0 !important;' +
 				'}';
 
 			// 브라우저에 빵 쏘기
