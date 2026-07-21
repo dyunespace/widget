@@ -81,7 +81,7 @@
 
 			const oTree = new Tree({
 				mode: 'MultiSelect', 
-				includeItemInSelection: false,
+				includeItemInSelection: true,
 				width: '100%',
 				// 🌟 [여기에 추가!!] UI5가 내부적으로 렌더링을 완벽하게 끝냈을 때 딱 한 번만 실행됨
 				updateFinished: function () {
