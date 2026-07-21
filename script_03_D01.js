@@ -303,6 +303,7 @@
 				this._ui5VBox = null;
 			}
 			this._built = false;
+			this._container = null;   // ← 추가! 다음 connectedCallback에서 새로 만들게
 		}
 
 		onCustomWidgetResize (width, height) {
