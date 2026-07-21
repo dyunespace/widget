@@ -83,23 +83,21 @@
 				mode: 'MultiSelect', 
 				includeItemInSelection: true,
 				width: '100%',
-				// 🌟 [여기에 추가!!] UI5가 내부적으로 렌더링을 완벽하게 끝냈을 때 딱 한 번만 실행됨
 				updateFinished: function () {
 					if (instance._needsExpansion) {
 						oTree.collapseAll();
 						oTree.expandToLevel(instance._defaultExpandLevel);
-						instance._needsExpansion = false; // 볼일 끝났으니 신호 끄기
+						instance._needsExpansion = false;
 					}
 				},
 				selectionChange: function (oEvent) {
 					const oItem = oEvent.getParameter('listItem');
-					const bSelected = oEvent.getParameter('selected'); // 체크/해제 여부
+					const bSelected = oEvent.getParameter('selected');
 
 					if (oItem) {
 						const oCtx = oItem.getBindingContext();
 						const oNodeData = oCtx.getObject();
 
-						// 부모 클릭 시 자식 전체 상태 변경 로직
 						const toggleChildren = function(node, isChecked) {
 							if (node.children && node.children.length > 0) {
 								node.children.forEach(child => {
@@ -109,14 +107,9 @@
 							}
 						};
 
-						// oNodeData.selected = bSelected; //이미 지정되어있음
 						toggleChildren(oNodeData, bSelected);
-
-						// 데이터 모델 강제 새로고침하여 화면의 체크박스 상태 업데이트
-						//oModel.refresh(true); //selected가 지정되어있으므로 필요없음
 					}
 
-					// 화면 전체에서 선택된 노드 수집
 					const aSelectedData = [];
 					const collectSelected = function(nodes, currentLevel) {
 						nodes.forEach(n => {
@@ -135,6 +128,37 @@
 						bubbles: true,
 						composed: true
 					}));
+				}
+			});
+
+			// 키보드 지원: SPACE/ENTER로 체크 토글
+			oTree.addEventDelegate({
+				onkeydown: function(oEvent) {
+					const key = oEvent.key;
+					if (key !== ' ' && key !== 'Enter') return;
+
+					// 현재 포커스된 아이템 찾기
+					const aItems = oTree.getItems();
+					const oFocusedItem = aItems.find(item => {
+						const dom = item.getDomRef();
+						return dom && dom.contains(document.activeElement);
+					});
+
+					if (!oFocusedItem) return;
+
+					// 현재 선택 상태 토글
+					const bCurrentSelected = oFocusedItem.getSelected();
+					oFocusedItem.setSelected(!bCurrentSelected);
+
+					// selectionChange 이벤트 수동 발생
+					oTree.fireSelectionChange({
+						listItem: oFocusedItem,
+						selected: !bCurrentSelected,
+						listItems: [oFocusedItem],
+						selectAll: false
+					});
+
+					oEvent.preventDefault();
 				}
 			});
 
@@ -250,24 +274,32 @@
 			if (!this._container) {
 				this._container = document.createElement('div');
 				this._container.className = this._widgetUid;
-				this._container.style.cssText = 'width:100%;height:100%;';
+				this._container.style.cssText = 'width:100%;height:100%;overflow-y:auto;overflow-x:hidden;';
 				this.appendChild(this._container);
 
 				this._fontStyleEl = document.createElement('style');
 				this._container.appendChild(this._fontStyleEl);
-
-				// IC 방식: document 레벨에서 mousedown 감지
-				// Custom Element 경계를 우회하여 SAC가 위젯을 선택할 수 있게 함
-				this._docMouseDownHandler = (e) => {
-					if (!e.isTrusted) return;
-					if (this._container.contains(e.target) || this.contains(e.target)) {
-						this.dispatchEvent(new MouseEvent('mousedown', {
-							bubbles: true, composed: true, cancelable: true,
-							view: window, clientX: e.clientX, clientY: e.clientY
-						}));
+				
+				// 🌟 [최종 해결책] 마우스/포인터 이벤트를 완벽하게 복제해서 SAC 껍데기로 전달
+				const forwardEvent = (e) => {
+					// e.isTrusted가 true인 경우(사람이 직접 클릭한 진짜 이벤트일 때)만 복제
+					if (e.isTrusted) {
+						const clone = new MouseEvent(e.type, {
+							bubbles: true,
+							composed: true,
+							cancelable: true,
+							view: window,
+							clientX: e.clientX, // 진짜 마우스 X 좌표
+							clientY: e.clientY  // 진짜 마우스 Y 좌표
+						});
+						this.dispatchEvent(clone);
 					}
 				};
-				document.addEventListener('mousedown', this._docMouseDownHandler, true);
+				
+				// mousedown, click, pointerdown 3가지를 모두 잡아냅니다.
+				this._container.addEventListener('mousedown', forwardEvent, true);
+				this._container.addEventListener('pointerdown', forwardEvent, true);
+				this._container.addEventListener('click', forwardEvent, true);
 			}
 
 			if (this._built) return;
@@ -281,9 +313,6 @@
 		}
 		
 		disconnectedCallback () {
-			if (this._docMouseDownHandler) {
-				document.removeEventListener('mousedown', this._docMouseDownHandler, true);
-			}
 			if (this._ui5VBox) {
 				try { this._ui5VBox.destroy(); } catch (e) {}
 				this._ui5VBox = null;
