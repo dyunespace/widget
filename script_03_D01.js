@@ -131,37 +131,6 @@
 				}
 			});
 
-			// 키보드 지원: SPACE/ENTER로 체크 토글
-			oTree.addEventDelegate({
-				onkeydown: function(oEvent) {
-					const key = oEvent.key;
-					if (key !== ' ' && key !== 'Enter') return;
-
-					// 현재 포커스된 아이템 찾기
-					const aItems = oTree.getItems();
-					const oFocusedItem = aItems.find(item => {
-						const dom = item.getDomRef();
-						return dom && dom.contains(document.activeElement);
-					});
-
-					if (!oFocusedItem) return;
-
-					// 현재 선택 상태 토글
-					const bCurrentSelected = oFocusedItem.getSelected();
-					oFocusedItem.setSelected(!bCurrentSelected);
-
-					// selectionChange 이벤트 수동 발생
-					oTree.fireSelectionChange({
-						listItem: oFocusedItem,
-						selected: !bCurrentSelected,
-						listItems: [oFocusedItem],
-						selectAll: false
-					});
-
-					oEvent.preventDefault();
-				}
-			});
-
 			// 데이터와 화면의 selected 속성 연결
 			oTree.bindItems({
 				path: '/nodes',
