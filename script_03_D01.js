@@ -55,10 +55,10 @@
 			'sap/m/Button',
 			'sap/m/SearchField',
 			'sap/m/VBox',
-			'sap/m/HBox',
-			'sap/m/FlexItemData',
-			'sap/m/ScrollContainer'
-			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData, ScrollContainer) {
+			'sap/m/HBox',              // 🌟 [추가] 가로 배치 박스
+			'sap/m/FlexItemData'       // 🌟 [추가] 자동 길이 조절 마법사
+			// 🌟 주의: function 괄호 안의 이름들도 순서대로 맞춰주세요!
+			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData) {
 			
 			// 🌟 1. [좀비 방어막] 라이브러리 다운로드 중에 SAC가 위젯을 껐다면, 화면 생성을 즉시 중단!
 			if (!instance._built) return; 
@@ -81,7 +81,7 @@
 
 			const oTree = new Tree({
 				mode: 'MultiSelect', 
-				includeItemInSelection: true,
+				includeItemInSelection: false,
 				width: '100%',
 				// 🌟 [여기에 추가!!] UI5가 내부적으로 렌더링을 완벽하게 끝냈을 때 딱 한 번만 실행됨
 				updateFinished: function () {
@@ -188,18 +188,10 @@
 				items: [oSearch, btnExpand, btnCollapse]
 			}).addStyleClass("sapUiTinyMarginBottom"); // 👈 트리와 간격 살짝 띄우기
 
-			const oScroll = new ScrollContainer({
-				width: '100%',
-				height: '100%',
-				vertical: true,
-				horizontal: false,
-				content: [oTree]
-			}).addStyleClass('treeScrollArea');
-
 			const oVBox = new VBox({
 				width: '100%',
 				height: '100%',
-				items: [oTopBar, oScroll]
+				items: [oTopBar, oTree] // 🌟 기존 oToolbar 대신 oTopBar 하나만 넣습니다.
 			});
 
 			oVBox.placeAt(container);
@@ -264,32 +256,18 @@
 				this._fontStyleEl = document.createElement('style');
 				this._container.appendChild(this._fontStyleEl);
 
-				// 🌟 타겟을 판별하는 스마트 이벤트 포워딩
-				const forwardEvent = (e) => {
+				// IC 방식: document 레벨에서 mousedown 감지
+				// Custom Element 경계를 우회하여 SAC가 위젯을 선택할 수 있게 함
+				this._docMouseDownHandler = (e) => {
 					if (!e.isTrusted) return;
-
-					const targetClass = typeof e.target.className === 'string' ? e.target.className : '';
-					const targetTag = e.target.tagName ? e.target.tagName.toUpperCase() : '';
-
-					// 체크박스/화살표/검색창/버튼은 UI5가 처리하도록 그냥 통과
-					if (
-						targetClass.includes('sapMCb') ||
-						targetClass.includes('sapUiIcon') ||
-						targetTag === 'INPUT' ||
-						targetClass.includes('sapMBtn')
-					) return;
-
-					// 빈 여백/텍스트 클릭 시에만 위젯 선택 이벤트 복제
-					this.dispatchEvent(new MouseEvent(e.type, {
-						bubbles: true, composed: true, cancelable: true,
-						view: window, clientX: e.clientX, clientY: e.clientY
-					}));
+					if (this._container.contains(e.target) || this.contains(e.target)) {
+						this.dispatchEvent(new MouseEvent('mousedown', {
+							bubbles: true, composed: true, cancelable: true,
+							view: window, clientX: e.clientX, clientY: e.clientY
+						}));
+					}
 				};
-
-				// bubble 단계(false)로 등록 → UI5가 이벤트를 먼저 처리
-				this._container.addEventListener('mousedown', forwardEvent, false);
-				this._container.addEventListener('pointerdown', forwardEvent, false);
-				this._container.addEventListener('click', forwardEvent, false);
+				document.addEventListener('mousedown', this._docMouseDownHandler, true);
 			}
 
 			if (this._built) return;
@@ -303,6 +281,9 @@
 		}
 		
 		disconnectedCallback () {
+			if (this._docMouseDownHandler) {
+				document.removeEventListener('mousedown', this._docMouseDownHandler, true);
+			}
 			if (this._ui5VBox) {
 				try { this._ui5VBox.destroy(); } catch (e) {}
 				this._ui5VBox = null;
@@ -526,13 +507,6 @@
 				'  background-color: #ffffff !important;' +  // 배경색 하양
 				'  background-image: none !important;' +     // UI5 순정 입체감 그라데이션 제거
 				'  border: 1px solid #dcdcdc !important;' +  // 검색창 테두리와 어울리는 은은한 선 추가
-				'}';
-
-			// treeScrollArea가 남은 공간 전부 차지
-			cssText +=
-				'.' + this._widgetUid + ' .treeScrollArea {' +
-				'  flex: 1 1 0 !important;' +
-				'  min-height: 0 !important;' +
 				'}';
 
 			// 브라우저에 빵 쏘기
