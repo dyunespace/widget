@@ -11,13 +11,13 @@
 			"sap/ui/core/Item",
 			"sap/m/StepInput",
 			"sap/ui/core/HTML",
-			"sap/m/HBox",         // 🌟 [추가] 가로로 묶어주는 박스
-			"sap/ui/core/Icon",    // 🌟 [추가] 정보 아이콘
-			"sap/m/Popover",      // 🌟 [추가] 꼭지 달린 말풍선
-			"sap/m/Text"          // 🌟 [추가] 말풍선 안의 텍스트
+			"sap/m/HBox",         // [추가] 가로로 묶어주는 박스
+			"sap/ui/core/Icon",    // [추가] 정보 아이콘
+			"sap/m/Popover",      // [추가] 꼭지 달린 말풍선
+			"sap/m/Text"          // [추가] 말풍선 안의 텍스트
 		], function (SimpleForm, Label, Input, CheckBox, Select, Item, StepInput, HTML, HBox, Icon, Popover, Text) {
 			
-			// 🌟 [추가] 색상 피커 + 기본값 토글을 가로로 예쁘게 묶어주는 스마트 헬퍼 함수
+			// [추가] 색상 피커 + 기본값 토글을 가로로 예쁘게 묶어주는 스마트 헬퍼 함수
 			function createColorPropRow(propName, defaultHex) {
 				const isDefault = !instance._props[propName];
 				const colorVal = instance._props[propName] || defaultHex;
@@ -68,14 +68,14 @@
 					const bSelected = oEvent.getParameter('selected');
 					instance.updateProp('showAllNode', bSelected);
 					
-					// 🌟 [추가] 체크 여부에 따라 노드 텍스트 라벨과 입력창 숨김/표시 처리
+					// [추가] 체크 여부에 따라 노드 텍스트 라벨과 입력창 숨김/표시 처리
 					lblShowAllText.setVisible(bSelected);
 					txtShowAllText.setVisible(bSelected);
 				}
 			});
 			
 			// 2. 노드 텍스트 라벨 변수 분리 및 초기 visible 설정
-			// ➕ [추가] 라벨을 변수로 생성하고 visible 속성 부여
+			// [추가] 라벨을 변수로 생성하고 visible 속성 부여
 			const lblShowAllText = new Label({ 
 				text: "전체 노드 이름",
 				visible: instance._props.showAllNode || false 
@@ -84,7 +84,7 @@
 			// 2. 노드 텍스트 (텍스트 입력)
 			const txtShowAllText = new Input({
 				value: instance._props.showAllNodeText || 'All',
-				visible: instance._props.showAllNode || false, // 🌟 [추가] 초기 visible 설정
+				visible: instance._props.showAllNode || false, // [추가] 초기 visible 설정
 				change: function (oEvent) {
 					instance.updateProp('showAllNodeText', oEvent.getParameter('value'));
 				}
@@ -148,7 +148,7 @@
 				}
 			});
 			
-			// 🌟 8. 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
+			// 8. 노드 행 간격 (위아래 버튼이 있는 숫자 입력)
 			const numRowPadding = new StepInput({
 				value: instance._props.treeRowPadding !== undefined ? instance._props.treeRowPadding : 0,
 				min: 0, max: 40,
@@ -157,7 +157,7 @@
 				}
 			});
 
-			// 🌟 8-1. SAC 스타일의 꼭지 달린 말풍선(Popover) 만들기
+			// 8-1. SAC 스타일의 꼭지 달린 말풍선(Popover) 만들기
 			const oInfoPopover = new Popover({
 				showHeader: false, // 제목 표시줄 숨김
 				placement: "Auto", // 공간에 맞춰 위나 아래로 꼬리가 생김
@@ -168,18 +168,18 @@
 				]
 			});
 
-			// 🌟 8-2. 아이콘 만들기 (순정 press 방식으로 원복)
+			// 8-2. 아이콘 만들기 (순정 press 방식으로 원복)
 			const infoIcon = new Icon({
 				src: "sap-icon://message-information",
 				size: "1rem",
 				color: "#5b738b",
 				press: function (oEvent) {
-					// 👆 기본 방식: 마우스를 클릭하고 손을 뗄 때 팝오버가 열립니다.
+					// 기본 방식: 마우스를 클릭하고 손을 뗄 때 팝오버가 열립니다.
 					oInfoPopover.openBy(oEvent.getSource());
 				}
 			}).addStyleClass("sapUiTinyMarginBegin"); // UI5가 알아서 손가락 커서를 만들어 주므로 sapPointer는 뺐습니다.
 
-			// 🌟 8-3. 마우스 이벤트 연결 (마우스를 치우면 닫힘)
+			// 8-3. 마우스 이벤트 연결 (마우스를 치우면 닫힘)
 			infoIcon.addEventDelegate({
 				onmouseout: function () {
 					// 마우스를 밖으로 빼면 서서히 사라집니다.
@@ -187,7 +187,7 @@
 				}
 			});
 
-			// 🌟 8-4. 숫자 입력창과 아이콘 묶어주기
+			// 8-4. 숫자 입력창과 아이콘 묶어주기
 			const hboxRowPadding = new HBox({
 				alignItems: "Center",
 				items: [
@@ -196,7 +196,7 @@
 				]
 			});
 			
-			// 🌟 [수정] 뼈대를 부수지 않고 얌전하게 왼쪽 정렬만 시키는 안전한 CSS
+			// [수정] 뼈대를 부수지 않고 얌전하게 왼쪽 정렬만 시키는 안전한 CSS
 			if (!document.getElementById("sac-custom-form-style")) {
 				const styleEl = document.createElement("style");
 				styleEl.id = "sac-custom-form-style";
@@ -216,7 +216,7 @@
 				document.head.appendChild(styleEl);
 			}
 			
-			// 🌟 [추가] 검색창 표시 여부
+			// [추가] 검색창 표시 여부
 			const chkShowSearch = new CheckBox({
 				selected: instance._props.showSearchBox !== false,
 				select: function (oEvent) {
@@ -224,7 +224,7 @@
 				}
 			});
 
-			// 🌟 [추가] 버튼 표시 여부
+			// [추가] 버튼 표시 여부
 			const chkShowBtns = new CheckBox({
 				selected: instance._props.showExpandCollapseBtn !== false,
 				select: function (oEvent) {
@@ -240,7 +240,7 @@
 				}
 			});
 			
-			// 🌟 6대 시각 디자인 컨트롤들 대량 생성!
+			// 6대 시각 디자인 컨트롤들 대량 생성!
 			const rowBg = createColorPropRow('rowBgColor', '#ffffff');
 			const rowHoverBg = createColorPropRow('rowHoverBgColor', '#f5f5f5');
 			const rowSelectedBg = createColorPropRow('rowSelectedBgColor', '#e0f0ff');
@@ -290,7 +290,7 @@
 				}
 			});
 			
-			// 🌟 SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
+			// SAP 기본 패널과 똑같은 레이아웃(SimpleForm)으로 묶기
 			const oForm = new SimpleForm({
 				editable: true,
 				layout: "ResponsiveGridLayout",
@@ -306,11 +306,11 @@
 					new Label({ text: "굵게" }), chkFontBold,
 					new Label({ text: "글자 색상" }), colorInput,
 					new Label({ text: "행 간격 (Padding)" }), hboxRowPadding,
-					new Label({ text: "검색창 표시" }), chkShowSearch,      // 🌟 [추가]
-					new Label({ text: "펼치기/접기 표시" }), chkShowBtns,     // 🌟 [추가]
+					new Label({ text: "검색창 표시" }), chkShowSearch,      // [추가]
+					new Label({ text: "펼치기/접기 표시" }), chkShowBtns,     // [추가]
 					new Label({ text: "텍스트 말줄임(...)" }), chkTextEllipsis,
 					
-					// 🌟 [추가] 오와 열이 완벽히 정렬되는 신규 커스텀 프로퍼티 폼 구성
+					// [추가] 오와 열이 완벽히 정렬되는 신규 커스텀 프로퍼티 폼 구성
 					new Label({ text: "노드 기본 배경색" }), rowBg.hbox,
 					new Label({ text: "노드 호버 배경색" }), rowHoverBg.hbox,
 					new Label({ text: "노드 선택 배경색" }), rowSelectedBg.hbox,
@@ -321,7 +321,7 @@
 					lblSepThick, numSepThickness,
 					lblSepStyle, selSepStyle
 				]
-			}).addStyleClass("sacLeftAlignForm"); // 👈 🌟 [여기에 추가!] 위에서 만든 스타일 이름을 달아줍니다.
+			}).addStyleClass("sacLeftAlignForm"); // [여기에 추가!] 위에서 만든 스타일 이름을 달아줍니다.
 
 			oForm.placeAt(container);
 
@@ -335,11 +335,11 @@
 				chkFontBold: chkFontBold,
 				colorInput: colorInput,
 				numRowPadding: numRowPadding,
-				chkShowSearch: chkShowSearch, // 🌟 [추가]
-				chkShowBtns: chkShowBtns,     // 🌟 [추가]
+				chkShowSearch: chkShowSearch, // [추가]
+				chkShowBtns: chkShowBtns,     // [추가]
 				chkTextEllipsis: chkTextEllipsis,
 				
-				// 🌟 신규 부품 등록
+				// 신규 부품 등록
 				rowBgCp: rowBg.cp, rowBgCb: rowBg.cb,
 				rowHoverBgCp: rowHoverBg.cp, rowHoverBgCb: rowHoverBg.cb,
 				rowSelectedBgCp: rowSelectedBg.cp, rowSelectedBgCb: rowSelectedBg.cb,
@@ -402,7 +402,7 @@
 					const domRef = this._ui5Controls.colorInput.getDomRef();
 					if (domRef) domRef.value = changedProps.treeFontColor;
 				}
-				// 🌟 [추가] 본체에서 값이 오면 패널 화면도 업데이트
+				// [추가] 본체에서 값이 오면 패널 화면도 업데이트
 				if ('treeRowPadding' in changedProps) {
 					this._ui5Controls.numRowPadding.setValue(changedProps.treeRowPadding);
 				}
