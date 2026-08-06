@@ -244,6 +244,7 @@
 			this._rowSeparatorColor = "#dcdcdc";
 			this._rowSeparatorThickness = 1;
 			this._rowSeparatorStyle = "solid";
+			this._textEllipsis = false;
 		}
 		
 		// <4> 화면에 배치되면 실행
@@ -354,6 +355,7 @@
 			if ('rowSeparatorColor' in changedProps) this._rowSeparatorColor = changedProps.rowSeparatorColor;
 			if ('rowSeparatorThickness' in changedProps) this._rowSeparatorThickness = changedProps.rowSeparatorThickness;
 			if ('rowSeparatorStyle' in changedProps) this._rowSeparatorStyle = changedProps.rowSeparatorStyle;
+			if ('textEllipsis' in changedProps) this._textEllipsis = changedProps.textEllipsis;
 			
 			this._applyFontStyle();
 
@@ -521,6 +523,17 @@
 				'  flex: 1 1 0 !important;' +
 				'  min-height: 0 !important;' +
 				'}';
+
+			// 텍스트 말줄임(...) 여부
+			if (this._textEllipsis) {
+				cssText +=
+					'.' + this._widgetUid + ' .sapMSLITitleOnly,' +
+					'.' + this._widgetUid + ' .sapMSLITitle {' +
+					'  white-space: nowrap !important;' +
+					'  overflow: hidden !important;' +
+					'  text-overflow: ellipsis !important;' +
+					'}';
+			}
 
 			// 브라우저에 빵 쏘기
 			this._fontStyleEl.textContent = cssText;
