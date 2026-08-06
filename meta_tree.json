@@ -127,6 +127,11 @@
 			"type": "string",
 			"default": "solid",
 			"description": "행 구분선 스타일(solid, dashed, dotted, double)"
+		},
+		"textEllipsis": {
+			"type": "boolean",
+			"default": false,
+			"description": "노드 텍스트 말줄임(...) 표시 여부"
 		}
 	},
 	"methods": {
