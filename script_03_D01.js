@@ -55,21 +55,21 @@
 			'sap/m/Button',
 			'sap/m/SearchField',
 			'sap/m/VBox',
-			'sap/m/HBox',              // 🌟 [추가] 가로 배치 박스
+			'sap/m/HBox',              // [추가] 가로 배치 박스
 			'sap/m/FlexItemData',
 			'sap/m/ScrollContainer'
 			], function (Tree, StandardTreeItem, JSONModel, Button, SearchField, VBox, HBox, FlexItemData, ScrollContainer) {
 			
-			// 🌟 1. [좀비 방어막] 라이브러리 다운로드 중에 SAC가 위젯을 껐다면, 화면 생성을 즉시 중단!
+			// 1. [좀비 방어막] 라이브러리 다운로드 중에 SAC가 위젯을 껐다면, 화면 생성을 즉시 중단!
 			if (!instance._built) return; 
 
-			// 🌟 2. [메모리 청소] 혹시라도 기존에 연결되어 있던 VBox가 있다면 완벽히 파괴!
+			// 2. [메모리 청소] 혹시라도 기존에 연결되어 있던 VBox가 있다면 완벽히 파괴!
 			if (instance._ui5VBox) {
 				try { instance._ui5VBox.destroy(); } catch (e) {}
 				instance._ui5VBox = null;
 			}
 
-			// 🌟 3. [물리적 청소] 컨테이너 안에 스타일 태그(<style>) 빼고 남아있는 모든 좀비 DOM 강제 소각!
+			// 3. [물리적 청소] 컨테이너 안에 스타일 태그(<style>) 빼고 남아있는 모든 좀비 DOM 강제 소각!
 			Array.from(container.children).forEach(child => {
 				if (child.tagName !== 'STYLE') {
 					container.removeChild(child);
@@ -144,13 +144,13 @@
 
 			oTree.setModel(oModel);
 
-			// 🌟 1. 펼치기/접기 버튼 생성
+			// 1. 펼치기/접기 버튼 생성
 			const btnExpand = new Button({
 				icon: 'sap-icon://expand',
 				tooltip: '모두 펼치기',
 				visible: instance._showExpandCollapseBtn,
 				press: function () { oTree.expandToLevel(99); }
-			}).addStyleClass("sapUiTinyMarginBegin sacWhiteBtn"); // 👈 왼쪽 여백 살짝
+			}).addStyleClass("sapUiTinyMarginBegin sacWhiteBtn"); // 왼쪽 여백 살짝
 
 			const btnCollapse = new Button({
 				icon: 'sap-icon://collapse',
@@ -159,12 +159,12 @@
 				press: function () { oTree.collapseAll(); }
 			}).addStyleClass("sapUiTinyMarginBegin sacWhiteBtn");
 			
-			// 🌟 2. 검색창 생성 (FlexItemData가 핵심!)
+			// 2. 검색창 생성 (FlexItemData가 핵심!)
 			const oSearch = new SearchField({
 				placeholder: '검색...',
 				width: '100%',
 				visible: instance._showSearchBox,
-				layoutData: new FlexItemData({ growFactor: 1 }), // 👈 🌟 마법의 코드: 옆에 버튼이 없어지면 남는 공간을 모두 흡수해서 넓어집니다!
+				layoutData: new FlexItemData({ growFactor: 1 }), // 마법의 코드: 옆에 버튼이 없어지면 남는 공간을 모두 흡수해서 넓어집니다!
 				liveChange: function (oEvent) {
 					const q = oEvent.getParameter('newValue').toLowerCase().trim();
 					const fullData = buildHierarchyFromSAC(instance.dataBinding);
@@ -173,13 +173,13 @@
 				}
 			});
 			
-			// 🌟 3. 가로 박스(HBox)에 검색창과 버튼 2개 나란히 꽂기
+			// 3. 가로 박스(HBox)에 검색창과 버튼 2개 나란히 꽂기
 			const oTopBar = new HBox({
 				width: '100%',
 				alignItems: 'Center',
 				visible: instance._showSearchBox || instance._showExpandCollapseBtn, // 둘 다 끄면 줄(Row) 전체를 숨김
 				items: [oSearch, btnExpand, btnCollapse]
-			}).addStyleClass("sapUiTinyMarginBottom"); // 👈 트리와 간격 살짝 띄우기
+			}).addStyleClass("sapUiTinyMarginBottom"); // 트리와 간격 살짝 띄우기
 
 			const oScroll = new ScrollContainer({
 				width: '100%',
@@ -205,7 +205,7 @@
 			instance._btnCollapse = btnCollapse;
 			instance._oTopBar = oTopBar;
 			
-			// 🌟 [호출 1] UI5 로딩이 무사히 끝났으니, 혹시 데이터 와있는지 확인하고 그려라!
+			// [호출 1] UI5 로딩이 무사히 끝났으니, 혹시 데이터 와있는지 확인하고 그려라!
 			instance._refreshTreeData();
 		});
 	}
@@ -232,9 +232,9 @@
 			this._treeRowPadding = 0; //0은 내부적으로 기본값
 			this._fontStyleEl = null;
 			this._widgetUid = 'hwid_' + Math.random().toString(36).slice(2);
-			this._showSearchBox = true;           // 🌟 [추가] 검색창 기본값
-			this._showExpandCollapseBtn = true;   // 🌟 [추가] 버튼 기본값
-			// 🌟 [추가] 6대 테마 제어 변수 (기본값 세팅)
+			this._showSearchBox = true;           // [추가] 검색창 기본값
+			this._showExpandCollapseBtn = true;   // [추가] 버튼 기본값
+			// [추가] 6대 테마 제어 변수 (기본값 세팅)
 			this._rowBgColor = "";
 			this._rowHoverBgColor = "";
 			this._rowSelectedBgColor = "";
@@ -258,7 +258,7 @@
 				this._fontStyleEl = document.createElement('style');
 				this._container.appendChild(this._fontStyleEl);
 				
-				// 🌟 [최종 해결책] 마우스/포인터 이벤트를 완벽하게 복제해서 SAC 껍데기로 전달
+				// [최종 해결책] 마우스/포인터 이벤트를 완벽하게 복제해서 SAC 껍데기로 전달
 				const forwardEvent = (e) => {
 					// e.isTrusted가 true인 경우(사람이 직접 클릭한 진짜 이벤트일 때)만 복제
 					if (e.isTrusted) {
@@ -331,7 +331,7 @@
 			if ('treeRowPadding' in changedProps) {
 				this._treeRowPadding = changedProps.treeRowPadding;
 			}
-			// 🌟 [추가] 검색창/버튼 실시간 토글 로직
+			// [추가] 검색창/버튼 실시간 토글 로직
 			if ('showSearchBox' in changedProps) {
 				this._showSearchBox = changedProps.showSearchBox;
 				if (this._oSearch) this._oSearch.setVisible(this._showSearchBox);
@@ -345,7 +345,7 @@
 				}
 				this._updateTopBarVisibility();
 			}
-			// 🌟 [추가] 스타일 패널에서 넘어오는 9가지 값 주머니에 담기
+			// [추가] 스타일 패널에서 넘어오는 9가지 값 주머니에 담기
 			if ('rowBgColor' in changedProps) this._rowBgColor = changedProps.rowBgColor;
 			if ('rowHoverBgColor' in changedProps) this._rowHoverBgColor = changedProps.rowHoverBgColor;
 			if ('rowSelectedBgColor' in changedProps) this._rowSelectedBgColor = changedProps.rowSelectedBgColor;
@@ -359,7 +359,7 @@
 			
 			this._applyFontStyle();
 
-			// 🌟 [호출 2] SAC 본체에서 새로운 데이터나 설정이 도착했으니, 새로 그려라!
+			// [호출 2] SAC 본체에서 새로운 데이터나 설정이 도착했으니, 새로 그려라!
 			this._refreshTreeData();
 		}
 
@@ -369,7 +369,7 @@
 			}
 		}
 		
-		// 🌟 [추가] 타이밍 엇갈림을 방지하는 만능 데이터 주입기!
+		// [추가] 타이밍 엇갈림을 방지하는 만능 데이터 주입기!
 		_refreshTreeData() {
 			if (this.dataBinding && this.dataBinding.state === 'success' && this.dataBinding.data) {
 				this._lastTreeData = buildHierarchyFromSAC(this.dataBinding);
@@ -381,7 +381,7 @@
 				? [{ id: 'ALL', text: this._showAllNodeText || 'All', selected: false, children: this._lastTreeData }]
 				: this._lastTreeData;
 
-			// 🌟 트리에게 "데이터 갱신했으니, 이따가 화면 다 그리면 펼쳐!" 라고 신호 보내기
+			// 트리에게 "데이터 갱신했으니, 이따가 화면 다 그리면 펼쳐!" 라고 신호 보내기
 			this._needsExpansion = true; 
 			
 			// 데이터 엎어치기
@@ -459,7 +459,7 @@
 				'  color:' + fontColor + ' !important;' +
 				'}';
 
-			// 🌟 2. 패딩 값이 0보다 클 때만 높이 조절 CSS를 슬쩍 추가!
+			// 2. 패딩 값이 0보다 클 때만 높이 조절 CSS를 슬쩍 추가!
 			if (rowPaddingVal > 0) {
 				cssText +=
 					'.' + this._widgetUid + ' .sapMTreeItemBase {' +
@@ -469,7 +469,7 @@
 					'}';
 			}
 			
-			// 🌟 [추가/확장] 6대 시각 디자인 요소를 강제로 주입하는 핵심 CSS 엔진
+			// [추가/확장] 6대 시각 디자인 요소를 강제로 주입하는 핵심 CSS 엔진
 			
 			// 면 제어 (기본, 호버, 선택 배경색)
 			if (this._rowBgColor) {
@@ -479,17 +479,17 @@
 				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase:hover { background-color: ' + this._rowHoverBgColor + ' !important; }';
 			}
 			if (this._rowSelectedBgColor) {
-				// 🌟 [수정된 부분] UI5의 진짜 선택 상태 클래스인 sapMLIBSelected 로 변경!
+				// [수정된 부분] UI5의 진짜 선택 상태 클래스인 sapMLIBSelected 로 변경!
 				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMLIBSelected { background-color: ' + this._rowSelectedBgColor + ' !important; }';
 				
-				// 🌟 [보너스] 선택된 행 위에 마우스를 올렸을 때 색이 날아가지 않도록 방어하는 코드 추가
+				// [보너스] 선택된 행 위에 마우스를 올렸을 때 색이 날아가지 않도록 방어하는 코드 추가
 				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase.sapMLIBSelected:hover { background-color: ' + this._rowSelectedBgColor + ' !important; }';
 			}
 
 			// 선 및 아이콘 제어 (화살표, 체크박스)
 			// 선 및 아이콘 제어 (화살표, 체크박스)
 			if (this._itemArrowColor) {
-				// 🌟 [수정] 화살표 껍데기, 내부 아이콘, 가짜 요소(::before)까지 3단 콤보로 싹 다 갈색으로 덮어버립니다!
+				// [수정] 화살표 껍데기, 내부 아이콘, 가짜 요소(::before)까지 3단 콤보로 싹 다 갈색으로 덮어버립니다!
 				cssText += 
 					'.' + this._widgetUid + ' .sapMTreeItemBaseExpander, ' +
 					'.' + this._widgetUid + ' .sapMTreeItemBaseExpander .sapUiIcon, ' +
@@ -509,7 +509,7 @@
 			} else {
 				cssText += '.' + this._widgetUid + ' .sapMTreeItemBase { border-bottom: none !important; }';
 			}
-			// 🌟 [여기에 추가] 버튼 배경색을 강제로 하얗게 칠하는 CSS 규칙 얹기
+			// [여기에 추가] 버튼 배경색을 강제로 하얗게 칠하는 CSS 규칙 얹기
 			cssText +=
 				'.' + this._widgetUid + ' .sacWhiteBtn .sapMBtnInner {' +
 				'  background-color: #ffffff !important;' +  // 배경색 하양
@@ -539,7 +539,7 @@
 			this._fontStyleEl.textContent = cssText;
 		}
 		
-		// 🌟 [추가] 검색창과 버튼 둘 다 꺼지면 아예 빈 줄 공간 자체를 지워버리는 함수
+		// [추가] 검색창과 버튼 둘 다 꺼지면 아예 빈 줄 공간 자체를 지워버리는 함수
 		_updateTopBarVisibility() {
 			if (this._oTopBar) {
 				this._oTopBar.setVisible(this._showSearchBox || this._showExpandCollapseBtn);
