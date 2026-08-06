@@ -1,0 +1,189 @@
+{
+	"eula": "",
+	"vendor": "SAP",
+	"license": "",
+	"id": "com.sap.sac.hierarchy.jjung",
+	"version": "1.0.8",
+	"name": "Hierarchy Tree Widget",
+	"icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAVElEQVR4nGNkIBJwKTv9Rxf7dncfI4zNRKxBhMCoQYQBC9EKA/0wBXv2wZlDwGt8JRMwEh4xgGouYkQX0L2yn2gXXdZxHAlZBCOMYIBQWCGHz+AEALvcECABxT4qAAAAAElFTkSuQmCC",
+	"newInstancePrefix": "HierarchyCustomWidget",
+	"description": "Hierarchy SAPUI5 03",
+	"webcomponents": [
+		{
+			"kind": "main",
+			"tag": "com-sap-sac-hierarchy-jjung-main",
+			"url": "https://dyunespace.github.io/widget/script_03_D01.js?v=20260721d",
+			"integrity": "",
+			"ignoreIntegrity": true
+		},
+		{
+			"kind": "styling",
+			"tag": "com-sap-sac-hierarchy-jjung-styling",
+			"url": "https://dyunespace.github.io/widget/styling_01.js?v=20260721",
+			"integrity": "",
+			"ignoreIntegrity": true
+		}
+	],
+	"properties": {
+		"width": {
+			"type": "integer",
+			"default": 600
+		},
+		"height": {
+			"type": "integer",
+			"default": 420
+		},
+		"showAllNode": {
+			"type": "boolean",
+			"default": false,
+			"description": "All 노드 표시 여부"
+		},
+		"showAllNodeText": {
+			"type": "string",
+			"default": "All",
+			"description": "All 노드에 표시할 텍스트"
+		},
+		"defaultExpandLevel": {
+			"type": "integer",
+			"default": 1,
+			"description": "데이터 로드 시 기본으로 펼칠 레벨"
+		},
+		"treeFontFamily": {
+			"type": "string",
+			"default": "Arial, sans-serif",
+			"description": "트리/검색창 폰트 패밀리"
+		},
+		"treeFontSize": {
+			"type": "integer",
+			"default": 13,
+			"description": "트리/검색창 글자 크기(px)"
+		},
+		"treeFontBold": {
+			"type": "boolean",
+			"default": false,
+			"description": "트리/검색창 글자 굵게 여부"
+		},
+		"treeFontColor": {
+			"type": "string",
+			"default": "#32363a",
+			"description": "트리/검색창 글자 색상"
+		},
+		"treeRowPadding": {
+			"type": "integer",
+			"default": 0,
+			"description": "트리 노드 행 간격(위아래 Padding px), 0=기본값"
+		},
+		"showSearchBox": {
+			"type": "boolean",
+			"default": true,
+			"description": "검색창 표시 여부"
+		},
+		"showExpandCollapseBtn": {
+			"type": "boolean",
+			"default": true,
+			"description": "펼치기/접기 버튼 표시 여부"
+		},
+		"rowBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 기본 배경색 (비어있으면 기본값)"
+		},
+		"rowHoverBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 마우스 오버 배경색"
+		},
+		"rowSelectedBgColor": {
+			"type": "string",
+			"default": "",
+			"description": "노드 선택 시 배경색"
+		},
+		"itemArrowColor": {
+			"type": "string",
+			"default": "",
+			"description": "펼치기/접기 화살표 색상"
+		},
+		"itemCheckboxColor": {
+			"type": "string",
+			"default": "",
+			"description": "체크박스 테두리 및 마크 색상"
+		},
+		"showRowSeparator": {
+			"type": "boolean",
+			"default": false,
+			"description": "행 구분선 표시 여부 (디폴트: false)"
+		},
+		"rowSeparatorColor": {
+			"type": "string",
+			"default": "#dcdcdc",
+			"description": "행 구분선 색상"
+		},
+		"rowSeparatorThickness": {
+			"type": "integer",
+			"default": 1,
+			"description": "행 구분선 두께(px)"
+		},
+		"rowSeparatorStyle": {
+			"type": "string",
+			"default": "solid",
+			"description": "행 구분선 스타일(solid, dashed, dotted, double)"
+		},
+		"textEllipsis": {
+			"type": "boolean",
+			"default": false,
+			"description": "노드 텍스트 말줄임(...) 표시 여부"
+		}
+	},
+	"methods": {
+		"getSelected": {
+			"description": "선택된 노드 목록 반환",
+			"returnType": "ResultMemberInfo[]"
+		},
+		"setExpandLevel": {
+			"description": "펼칠 레벨 설정",
+			"parameters": [
+				{
+					"name": "level",
+					"type": "integer",
+					"description": "펼칠 레벨 수 (예: 1, 2, 99=전체)"
+				}
+			]
+		},
+		"setShowAllNode": {
+			"description": "All 노드 표시 여부 및 텍스트 설정",
+			"parameters": [
+				{
+					"name": "value",
+					"type": "boolean",
+					"description": "true=상위 노드 표시, false=숨김"
+				},
+				{
+					"name": "text",
+					"type": "string",
+					"description": "상위 노드에 표시할 텍스트 (생략 시 'All')"
+				}
+			]
+		}
+	},
+	"events": {
+		"onNodeSelect": {
+			"description": "트리에서 노드를 선택/해제할 때 발생하는 이벤트"
+		}
+	},
+	"dataBindings": {
+		"dataBinding": {
+			"feeds": [
+				{
+					"id": "dimensions",
+					"description": "Dimensions",
+					"type": "dimension"
+				},
+				{
+					"id": "measures",
+					"description": "Measures",
+					"type": "mainStructureMember"
+				}
+			]
+		}
+	}
+}
