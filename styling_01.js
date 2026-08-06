@@ -231,6 +231,14 @@
 					instance.updateProp('showExpandCollapseBtn', oEvent.getParameter('selected'));
 				}
 			});
+
+			// 텍스트 말줄임(...) 여부
+			const chkTextEllipsis = new CheckBox({
+				selected: instance._props.textEllipsis === true,
+				select: function (oEvent) {
+					instance.updateProp('textEllipsis', oEvent.getParameter('selected'));
+				}
+			});
 			
 			// 🌟 6대 시각 디자인 컨트롤들 대량 생성!
 			const rowBg = createColorPropRow('rowBgColor', '#ffffff');
@@ -300,6 +308,7 @@
 					new Label({ text: "행 간격 (Padding)" }), hboxRowPadding,
 					new Label({ text: "검색창 표시" }), chkShowSearch,      // 🌟 [추가]
 					new Label({ text: "펼치기/접기 표시" }), chkShowBtns,     // 🌟 [추가]
+					new Label({ text: "텍스트 말줄임(...)" }), chkTextEllipsis,
 					
 					// 🌟 [추가] 오와 열이 완벽히 정렬되는 신규 커스텀 프로퍼티 폼 구성
 					new Label({ text: "노드 기본 배경색" }), rowBg.hbox,
@@ -328,6 +337,7 @@
 				numRowPadding: numRowPadding,
 				chkShowSearch: chkShowSearch, // 🌟 [추가]
 				chkShowBtns: chkShowBtns,     // 🌟 [추가]
+				chkTextEllipsis: chkTextEllipsis,
 				
 				// 🌟 신규 부품 등록
 				rowBgCp: rowBg.cp, rowBgCb: rowBg.cb,
@@ -398,6 +408,7 @@
 				}
 				if ('showSearchBox' in changedProps) this._ui5Controls.chkShowSearch.setSelected(changedProps.showSearchBox);
 				if ('showExpandCollapseBtn' in changedProps) this._ui5Controls.chkShowBtns.setSelected(changedProps.showExpandCollapseBtn);
+				if ('textEllipsis' in changedProps) this._ui5Controls.chkTextEllipsis.setSelected(changedProps.textEllipsis);
 				
 				// 스마트 컬러 리프레시 유틸리티
 				const refreshColorControl = (propName, cp, cb, defaultHex) => {
