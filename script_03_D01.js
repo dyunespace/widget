@@ -527,11 +527,13 @@
 			// 텍스트 말줄임(...) 여부
 			if (this._textEllipsis) {
 				cssText +=
+					'.' + this._widgetUid + ' .sapMLIBContent,' +
 					'.' + this._widgetUid + ' .sapMSLITitleOnly,' +
 					'.' + this._widgetUid + ' .sapMSLITitle {' +
 					'  white-space: nowrap !important;' +
 					'  overflow: hidden !important;' +
 					'  text-overflow: ellipsis !important;' +
+					'  min-width: 0 !important;' +
 					'}';
 			}
 
